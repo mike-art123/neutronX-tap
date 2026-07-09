@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>NeutronX</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #0d0a1c;
+    --bg-card: #1b1533;
+    --bg-card-2: #241c44;
+    --gold: #f6c945;
+    --gold-dark: #c8931a;
+    --violet: #8b6cff;
+    --text: #f3f0fc;
+    --muted: #9d94c0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: 'Vazirmatn', sans-serif;
+    background: radial-gradient(ellipse 120% 60% at 50% -10%, #2a1f55 0%, var(--bg-deep) 60%);
+    color: var(--text);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  #app {
+    max-width: 480px;
+    margin: 0 auto;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+  }
+
+  /* ---------- Header ---------- */
+  .header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .player {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg-card);
+    border: 1px solid #2e2657;
+    border-radius: 14px;
+    padding: 7px 12px;
+    font-size: 13px; font-weight: 600;
+  }
+  .avatar {
+    width: 26px; height: 26px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--violet), #5a3fd6);
+    display: grid; place-items: center; font-size: 13px;
+  }
+  .level-chip {
+    background: var(--bg-card);
+    border: 1px solid #2e2657;
+    border-radius: 14px;
+    padding: 7px 12px;
+    font-size: 12px; color: var(--muted); font-weight: 600;
+  }
+  .level-chip b { color: var(--gold); font-weight: 800; }
+
+  /* ---------- Balance ---------- */
+  .balance { text-align: center; margin-top: 18px; }
+  .balance .label { font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .balance .amount {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px; margin-top: 4px;
+  }
+  .balance .amount .num {
+    font-size: 44px; font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    background: linear-gradient(180deg, #fff2c9, var(--gold) 55%, var(--gold-dark));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 1.1;
+  }
+  .ticker { font-size: 15px; font-weight: 800; color: var(--muted); align-self: flex-end; padding-bottom: 8px; }
+  .mini-atom { width: 32px; height: 32px; }
+
+  /* ---------- Level progress ---------- */
+  .progress-wrap { margin: 14px auto 0; width: 82%; }
+  .progress-meta {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--muted); margin-bottom: 5px;
+  }
+  .progress-bar {
+    height: 8px; background: var(--bg-card);
+    border-radius: 99px; overflow: hidden;
+    border: 1px solid #2e2657;
+  }
+  .progress-fill {
+    height: 100%; width: 0%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--violet), var(--gold));
+    transition: width .3s ease;
+  }
+
+  /* ---------- Coin ---------- */
+  .coin-zone { flex: 1; display: grid; place-items: center; position: relative; min-height: 0; }
+  .coin {
+    width: min(62vw, 260px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 30% 25%, #fff3c4 0%, #f9d968 28%, var(--gold) 55%, var(--gold-dark) 88%, #8a6100 100%);
+    box-shadow:
+      0 0 60px rgba(246, 201, 69, .25),
+      0 14px 34px rgba(0, 0, 0, .5),
+      inset 0 -10px 24px rgba(120, 82, 0, .45),
+      inset 0 8px 18px rgba(255, 255, 255, .5);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: transform .08s ease;
+    will-change: transform;
+    position: relative;
+  }
+  .coin::after {
+    content: "";
+    position: absolute;
+    inset: 9%;
+    border-radius: 50%;
+    border: 3px dashed rgba(140, 96, 5, .5);
+  }
+  .coin svg.atom { width: 58%; height: 58%; pointer-events: none; }
+  .hint {
+    position: absolute;
+    bottom: 4px;
+    width: 100%;
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .float-num {
+    position: absolute;
+    font-size: 26px; font-weight: 900; color: #fff;
+    text-shadow: 0 2px 8px rgba(139, 108, 255, .8);
+    pointer-events: none;
+    animation: floatUp .85s ease-out forwards;
+    z-index: 5;
+  }
+  .float-num.big {
+    font-size: 36px;
+    color: var(--gold);
+    text-shadow: 0 2px 12px rgba(246, 201, 69, .9);
+  }
+  @keyframes floatUp {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to   { opacity: 0; transform: translateY(-90px) scale(1.25); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .float-num { animation-duration: .3s; }
+    .coin { transition: none; }
+  }
+
+  /* ---------- Energy ---------- */
+  .energy { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .energy .bolt { font-size: 18px; }
+  .energy-bar {
+    flex: 1; height: 14px;
+    background: var(--bg-card);
+    border: 1px solid #2e2657;
+    border-radius: 99px; overflow: hidden;
+  }
+  .energy-fill {
+    height: 100%; width: 100%;
+    background: linear-gradient(90deg, #4cc9f0, var(--violet));
+    border-radius: 99px;
+    transition: width .15s linear;
+  }
+  .energy-num {
+    font-size: 12px; font-weight: 700;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    min-width: 84px; text-align: right;
+  }
+
+  /* ---------- Upgrades ---------- */
+  .upgrades { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .upg {
+    background: var(--bg-card);
+    border: 1px solid #2e2657;
+    border-radius: 16px;
+    padding: 10px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform .1s ease, border-color .15s ease;
+  }
+  .upg:active { transform: scale(.96); }
+  .upg.affordable { border-color: var(--gold); }
+  .upg .icon { font-size: 20px; }
+  .upg .name { font-size: 11.5px; font-weight: 700; margin-top: 4px; }
+  .upg .lvl { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .upg .cost {
+    margin-top: 6px;
+    font-size: 11px; font-weight: 800;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Watch Ad ---------- */
+  .reset-note {
+    margin-top: 8px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .reset-note b {
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+  }
+  .ad-btn {
+    margin-top: 8px;
+    background: linear-gradient(135deg, #2c2158, var(--bg-card-2));
+    border: 1px solid var(--violet);
+    border-radius: 16px;
+    padding: 12px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .1s ease;
+  }
+  .ad-btn:active { transform: scale(.97); }
+  .ad-btn span {
+    color: var(--gold);
+    font-weight: 900;
+    margin-left: 4px;
+  }
+  .ad-overlay {
+    position: fixed; inset: 0;
+    background: rgba(6, 4, 16, .85);
+    display: none;
+    place-items: center;
+    z-index: 100;
+  }
+  .ad-overlay.show { display: grid; }
+  .ad-box {
+    background: var(--bg-card-2);
+    border: 1px solid var(--violet);
+    border-radius: 20px;
+    padding: 30px 34px;
+    text-align: center;
+    width: 78%;
+    max-width: 320px;
+  }
+  .ad-box .ad-label {
+    font-size: 10px; letter-spacing: 2px;
+    color: var(--muted); text-transform: uppercase;
+  }
+  .ad-box .ad-content { font-size: 42px; margin: 14px 0; }
+  .ad-box .ad-timer {
+    font-size: 30px; font-weight: 900;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Username modal ---------- */
+  .name-overlay {
+    position: fixed; inset: 0;
+    background: rgba(6, 4, 16, .85);
+    display: none;
+    place-items: center;
+    z-index: 110;
+  }
+  .name-overlay.show { display: grid; }
+  .name-box {
+    background: var(--bg-card-2);
+    border: 1px solid var(--gold);
+    border-radius: 20px;
+    padding: 26px 24px;
+    text-align: center;
+    width: 82%;
+    max-width: 320px;
+  }
+  .name-box .name-title {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+  .name-box input {
+    width: 100%;
+    background: var(--bg-deep);
+    border: 1px solid #2e2657;
+    border-radius: 12px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 12px 14px;
+    text-align: center;
+    outline: none;
+  }
+  .name-box input:focus { border-color: var(--violet); }
+  .name-box .name-save {
+    margin-top: 14px;
+    width: 100%;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    border: none;
+    border-radius: 12px;
+    color: #3a2a00;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 900;
+    padding: 12px;
+    cursor: pointer;
+  }
+  .name-box .name-save:active { transform: scale(.97); }
+
+  /* ---------- Toast ---------- */
+  .toast {
+    position: fixed;
+    top: 70px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-card-2);
+    border: 1px solid var(--violet);
+    color: var(--text);
+    font-size: 13px; font-weight: 600;
+    padding: 9px 18px;
+    border-radius: 12px;
+    opacity: 0;
+    transition: opacity .25s ease;
+    pointer-events: none;
+    z-index: 50;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="header">
+    <div class="player">
+      <div class="avatar">👤</div>
+      <span id="playerName">Player</span>
+    </div>
+    <div class="level-chip">Level <b id="levelNum">1</b> · <span id="levelTitle">Rookie</span></div>
+  </div>
+
+  <div class="balance">
+    <div class="label">Your Balance</div>
+    <div class="amount">
+      <svg class="mini-atom" viewBox="0 0 100 100">
+        <g stroke="#f6c945" stroke-width="5" fill="none">
+          <ellipse cx="50" cy="50" rx="42" ry="17"/>
+          <ellipse cx="50" cy="50" rx="42" ry="17" transform="rotate(60 50 50)"/>
+          <ellipse cx="50" cy="50" rx="42" ry="17" transform="rotate(120 50 50)"/>
+        </g>
+        <circle cx="50" cy="50" r="10" fill="#f6c945"/>
+      </svg>
+      <div class="num" id="balance">0</div>
+      <div class="ticker">NTR</div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-meta">
+      <span>Level progress</span>
+      <span id="progressText">0 / 1,000</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <div class="coin-zone" id="coinZone">
+    <div class="coin" id="coin">
+      <svg class="atom" viewBox="0 0 100 100">
+        <g stroke="#7a5400" stroke-width="4.5" fill="none" opacity="0.9">
+          <ellipse cx="50" cy="50" rx="44" ry="16"/>
+          <ellipse cx="50" cy="50" rx="44" ry="16" transform="rotate(60 50 50)"/>
+          <ellipse cx="50" cy="50" rx="44" ry="16" transform="rotate(120 50 50)"/>
+        </g>
+        <circle cx="50" cy="50" r="11" fill="#7a5400"/>
+        <circle cx="94" cy="50" r="5" fill="#7a5400"/>
+        <circle cx="28" cy="88" r="5" fill="#7a5400"/>
+        <circle cx="28" cy="12" r="5" fill="#7a5400"/>
+      </svg>
+    </div>
+    <div class="hint">Tap the coin to earn NTR</div>
+  </div>
+
+  <div class="energy">
+    <span class="bolt">⚡</span>
+    <div class="energy-bar"><div class="energy-fill" id="energyFill"></div></div>
+    <span class="energy-num" id="energyNum">500 / 500</span>
+  </div>
+
+  <div class="upgrades">
+    <div class="upg" id="upgTap">
+      <div class="icon">👆</div>
+      <div class="name">Multitap</div>
+      <div class="lvl" id="upgTapLvl">Level 1</div>
+      <div class="cost">📺 Watch Ad</div>
+    </div>
+    <div class="upg" id="upgEnergy">
+      <div class="icon">🔋</div>
+      <div class="name">Energy Limit</div>
+      <div class="lvl" id="upgEnergyLvl">Level 1</div>
+      <div class="cost">📺 Watch Ad</div>
+    </div>
+    <div class="upg" id="upgRegen">
+      <div class="icon">♻️</div>
+      <div class="name">Fast Recharge</div>
+      <div class="lvl" id="upgRegenLvl">Level 1</div>
+      <div class="cost">📺 Watch Ad</div>
+    </div>
+  </div>
+
+  <div class="reset-note">⏰ Upgrade levels reset every 24 hours · Resets in <b id="resetTimer">24:00:00</b></div>
+
+  <div class="ad-btn" id="watchAd">📺 Watch Ad → Refill Energy <span>FREE</span></div>
+
+</div>
+
+<div class="ad-overlay" id="adOverlay">
+  <div class="ad-box">
+    <div class="ad-label">Sponsored</div>
+    <div class="ad-content">📺</div>
+    <div class="ad-timer" id="adTimer">5</div>
+  </div>
+</div>
+
+<div class="name-overlay" id="nameOverlay">
+  <div class="name-box">
+    <div class="name-title">Choose your username</div>
+    <input type="text" id="nameInput" maxlength="20" placeholder="Enter your name..." autocomplete="off">
+    <button class="name-save" id="nameSave">Save & Play</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  // ---------- Telegram Mini App ----------
+  const tg = window.Telegram && window.Telegram.WebApp;
+  if (tg) {
+    tg.ready();
+    tg.expand();
+    const u = tg.initDataUnsafe && tg.initDataUnsafe.user;
+    if (u && u.first_name) {
+      document.getElementById('playerName').textContent = u.first_name;
+    }
+  }
+
+  // ---------- State (stored on server in the real version) ----------
+  const state = {
+    balance: 0,
+    totalEarned: 0,
+    tapLevel: 1,
+    energyLevel: 1,
+    regenLevel: 1,
+    energy: 500,
+  };
+
+  const tapPower  = () => state.tapLevel; // 1 NTR per level
+  const maxEnergy = () => 500 + (state.energyLevel - 1) * 250;
+  const regenRate = () => 3 + (state.regenLevel - 1) * 2; // per second
+
+  const LEVELS = [
+    { need: 0,        title: 'Rookie' },
+    { need: 1000,     title: 'Explorer' },
+    { need: 5000,     title: 'Miner' },
+    { need: 25000,    title: 'Trader' },
+    { need: 100000,   title: 'Small Whale' },
+    { need: 500000,   title: 'Whale' },
+    { need: 2000000,  title: 'Legend' },
+  ];
+
+  // ---------- Helpers ----------
+  const fmt = n => n.toLocaleString('en-US', { maximumFractionDigits: 1 });
+  const $ = id => document.getElementById(id);
+
+  function currentLevel() {
+    let lvl = 0;
+    for (let i = 0; i < LEVELS.length; i++) {
+      if (state.totalEarned >= LEVELS[i].need) lvl = i;
+    }
+    return lvl;
+  }
+
+  function render() {
+    $('balance').textContent = fmt(state.balance);
+
+    const lvl = currentLevel();
+    $('levelNum').textContent = lvl + 1;
+    $('levelTitle').textContent = LEVELS[lvl].title;
+
+    const cur = LEVELS[lvl].need;
+    const next = LEVELS[lvl + 1] ? LEVELS[lvl + 1].need : null;
+    if (next) {
+      const pct = ((state.totalEarned - cur) / (next - cur)) * 100;
+      $('progressFill').style.width = Math.min(100, pct) + '%';
+      $('progressText').textContent = fmt(state.totalEarned) + ' / ' + fmt(next);
+    } else {
+      $('progressFill').style.width = '100%';
+      $('progressText').textContent = 'Max level!';
+    }
+
+    $('energyFill').style.width = (state.energy / maxEnergy()) * 100 + '%';
+    $('energyNum').textContent = fmt(Math.floor(state.energy)) + ' / ' + fmt(maxEnergy());
+
+    $('upgTapLvl').textContent    = 'Level ' + state.tapLevel;
+    $('upgEnergyLvl').textContent = 'Level ' + state.energyLevel;
+    $('upgRegenLvl').textContent  = 'Level ' + state.regenLevel;
+  }
+
+  // ---------- Toast ----------
+  let toastTimer;
+  function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
+  }
+
+  // ---------- Tap ----------
+  const coin = $('coin');
+  const zone = $('coinZone');
+  let nameAsked = false;
+
+  // Username modal save button
+  $('nameSave').addEventListener('click', () => {
+    const v = $('nameInput').value.trim();
+    if (!v) { toast('Please enter a username'); return; }
+    $('playerName').textContent = v;
+    $('nameOverlay').classList.remove('show');
+    toast('Welcome, ' + v + '! 👋');
+    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+  });
+  $('nameInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') $('nameSave').click();
+  });
+
+  function handleTap(clientX, clientY) {
+    const gain = tapPower();
+    const energyCost = 1;
+
+    if (state.energy < energyCost) {
+      toast('Not enough energy! Wait a moment ⚡');
+      return;
+    }
+    state.energy -= energyCost;
+    state.balance = Math.round((state.balance + gain) * 10) / 10;
+    state.totalEarned = Math.round((state.totalEarned + gain) * 10) / 10;
+
+    // Coin tilt based on touch point
+    const r = coin.getBoundingClientRect();
+    const dx = (clientX - (r.left + r.width / 2)) / (r.width / 2);
+    const dy = (clientY - (r.top + r.height / 2)) / (r.height / 2);
+    coin.style.transform = `rotateX(${ -dy * 14 }deg) rotateY(${ dx * 14 }deg) scale(.97)`;
+    setTimeout(() => { coin.style.transform = ''; }, 90);
+
+    // Floating number
+    const f = document.createElement('div');
+    f.className = 'float-num';
+    f.textContent = '+' + fmt(gain);
+    const zr = zone.getBoundingClientRect();
+    f.style.left = (clientX - zr.left - 14) + 'px';
+    f.style.top  = (clientY - zr.top - 20) + 'px';
+    zone.appendChild(f);
+    setTimeout(() => f.remove(), 900);
+
+    if (tg && tg.HapticFeedback) {
+      tg.HapticFeedback.impactOccurred('light');
+    }
+    render();
+
+    // Ask for a username after the very first tap (if we don't have one yet)
+    if (!nameAsked) {
+      nameAsked = true;
+      if ($('playerName').textContent === 'Player') {
+        $('nameOverlay').classList.add('show');
+        setTimeout(() => $('nameInput').focus(), 100);
+      }
+    }
+  }
+
+  coin.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    handleTap(e.clientX, e.clientY);
+  });
+  // Multi-finger support
+  coin.addEventListener('touchstart', e => {
+    if (e.touches.length > 1) {
+      for (let i = 1; i < e.touches.length; i++) {
+        handleTap(e.touches[i].clientX, e.touches[i].clientY);
+      }
+    }
+  }, { passive: true });
+
+  // ---------- Ad player (shared) ----------
+  // ⬇️ PASTE YOUR ADSGRAM BLOCK ID HERE (from https://partner.adsgram.ai)
+  // Example: const ADSGRAM_BLOCK_ID = '1234';
+  const ADSGRAM_BLOCK_ID = '';
+
+  let AdController = null;
+  if (ADSGRAM_BLOCK_ID && window.Adsgram) {
+    AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
+  }
+
+  const adOverlay = $('adOverlay');
+  let adRunning = false;
+
+  function showAd(onReward) {
+    if (adRunning) return;
+
+    // Real Adsgram ad (when a block ID is set)
+    if (AdController) {
+      adRunning = true;
+      AdController.show()
+        .then(() => {
+          // user watched the ad till the end → give the reward
+          adRunning = false;
+          onReward();
+          if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+          render();
+        })
+        .catch(() => {
+          // user skipped the ad or an error occurred → no reward
+          adRunning = false;
+          toast('Ad was skipped — no reward this time');
+        });
+      return;
+    }
+
+    // Simulated ad (used until the Adsgram block ID is added)
+    adRunning = true;
+    let secs = 5;
+    $('adTimer').textContent = secs;
+    adOverlay.classList.add('show');
+    const iv = setInterval(() => {
+      secs--;
+      $('adTimer').textContent = secs;
+      if (secs <= 0) {
+        clearInterval(iv);
+        adOverlay.classList.remove('show');
+        adRunning = false;
+        onReward();
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        render();
+      }
+    }, 1000);
+  }
+
+  // ---------- Upgrades (watch an ad to level up) ----------
+  $('upgTap').addEventListener('click', () =>
+    showAd(() => { state.tapLevel++; toast('Multitap upgraded! 🎉'); }));
+  $('upgEnergy').addEventListener('click', () =>
+    showAd(() => { state.energyLevel++; state.energy = maxEnergy(); toast('Energy Limit upgraded! 🎉'); }));
+  $('upgRegen').addEventListener('click', () =>
+    showAd(() => { state.regenLevel++; toast('Fast Recharge upgraded! 🎉'); }));
+
+  // ---------- Watch ad → refill energy ----------
+  $('watchAd').addEventListener('click', () => {
+    if (state.energy >= maxEnergy()) { toast('Energy is already full!'); return; }
+    showAd(() => {
+      state.energy = maxEnergy();
+      toast('Energy fully recharged! ⚡');
+    });
+  });
+
+  // ---------- 24h upgrade level reset ----------
+  // NOTE: in the real version the reset time is stored on the server per
+  // user, so it survives closing the app. Here it's in-memory only.
+  const RESET_MS = 24 * 60 * 60 * 1000;
+  let resetAt = Date.now() + RESET_MS;
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  setInterval(() => {
+    let left = resetAt - Date.now();
+    if (left <= 0) {
+      state.tapLevel = 1;
+      state.energyLevel = 1;
+      state.regenLevel = 1;
+      state.energy = Math.min(state.energy, maxEnergy());
+      resetAt = Date.now() + RESET_MS;
+      left = RESET_MS;
+      toast('Daily reset! Upgrade levels are back to 1 🌅');
+      render();
+    }
+    const h = Math.floor(left / 3600000);
+    const m = Math.floor((left % 3600000) / 60000);
+    const s = Math.floor((left % 60000) / 1000);
+    $('resetTimer').textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
+  }, 1000);
+
+  // ---------- Energy regen loop ----------
+  setInterval(() => {
+    if (state.energy < maxEnergy()) {
+      state.energy = Math.min(maxEnergy(), state.energy + regenRate() / 10);
+      render();
+    }
+  }, 100);
+
+  render();
+})();
+</script>
+</body>
+</html>
