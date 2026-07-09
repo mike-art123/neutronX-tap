@@ -546,6 +546,7 @@
     state.energy -= energyCost;
     state.balance = Math.round((state.balance + gain) * 10) / 10;
     state.totalEarned = Math.round((state.totalEarned + gain) * 10) / 10;
+    dirty = true;
 
     // Coin tilt based on touch point
     const r = coin.getBoundingClientRect();
@@ -616,6 +617,7 @@
           // user watched the ad till the end → give the reward
           adRunning = false;
           onReward();
+          dirty = true;
           if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
           render();
         })
@@ -640,6 +642,7 @@
         adOverlay.classList.remove('show');
         adRunning = false;
         onReward();
+        dirty = true;
         if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
         render();
       }
@@ -696,6 +699,54 @@
       render();
     }
   }, 100);
+
+  // ---------- Server sync (persistent storage) ----------
+  const API_URL = 'https://neutronx-api.rezaeiardakanim.workers.dev';
+  const initData = tg ? tg.initData : '';
+  let serverReady = false;
+  let dirty = false;
+
+  async function api(path) {
+    const res = await fetch(API_URL + path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ initData: initData, state: state })
+    });
+    if (!res.ok) throw new Error('api ' + res.status);
+    return res.json();
+  }
+
+  async function loadFromServer() {
+    if (!initData) return; // running outside Telegram: nothing to load
+    try {
+      const data = await api('/load');
+      Object.assign(state, data.state);
+      state.energy = Math.min(state.energy, maxEnergy());
+      if (data.resetAt) resetAt = data.resetAt;
+      if (data.name) $('playerName').textContent = data.name;
+      serverReady = true;
+      render();
+    } catch (e) {
+      console.error('Load failed:', e);
+    }
+  }
+
+  async function saveToServer() {
+    if (!initData || !serverReady || !dirty) return;
+    dirty = false;
+    try {
+      const data = await api('/save');
+      if (data.resetAt) resetAt = data.resetAt;
+    } catch (e) {
+      dirty = true; // retry on the next cycle
+    }
+  }
+
+  setInterval(saveToServer, 30000); // save every 30s when something changed
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') saveToServer();
+  });
+  loadFromServer();
 
   render();
 })();
