@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>NeutronX</title>
+<title>NeuronX</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800;900&display=swap" rel="stylesheet">
@@ -457,7 +457,7 @@
 
   const tapPower  = () => state.tapLevel; // 1 NTR per level
   const maxEnergy = () => 500 + (state.energyLevel - 1) * 250;
-  const regenRate = () => 3 + (state.regenLevel - 1) * 2; // per second
+  const regenRate = () => 1.5 + (state.regenLevel - 1); // per second (halved)
 
   const LEVELS = [
     { need: 0,        title: 'Rookie' },
@@ -547,6 +547,7 @@
     state.balance = Math.round((state.balance + gain) * 10) / 10;
     state.totalEarned = Math.round((state.totalEarned + gain) * 10) / 10;
     dirty = true;
+    scheduleSave();
 
     // Coin tilt based on touch point
     const r = coin.getBoundingClientRect();
@@ -596,7 +597,7 @@
   // ---------- Ad player (shared) ----------
   // ⬇️ PASTE YOUR ADSGRAM BLOCK ID HERE (from https://partner.adsgram.ai)
   // Example: const ADSGRAM_BLOCK_ID = '1234';
-  const ADSGRAM_BLOCK_ID = '37866';
+  const ADSGRAM_BLOCK_ID = '37868';
 
   let AdController = null;
   if (ADSGRAM_BLOCK_ID && window.Adsgram) {
@@ -618,6 +619,7 @@
           adRunning = false;
           onReward();
           dirty = true;
+          saveToServer(); // save instantly after a reward
           if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
           render();
         })
@@ -643,6 +645,7 @@
         adRunning = false;
         onReward();
         dirty = true;
+        saveToServer(); // save instantly after a reward
         if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
         render();
       }
@@ -742,7 +745,13 @@
     }
   }
 
-  setInterval(saveToServer, 30000); // save every 30s when something changed
+  let saveTimer = null;
+  function scheduleSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveToServer, 2000); // save 2s after the last action
+  }
+
+  setInterval(saveToServer, 30000); // backup save loop
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') saveToServer();
   });
