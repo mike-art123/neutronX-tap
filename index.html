@@ -457,7 +457,8 @@
 
   const tapPower  = () => state.tapLevel; // 1 NTR per level
   const maxEnergy = () => 500 + (state.energyLevel - 1) * 250;
-  const regenRate = () => 1.5 + (state.regenLevel - 1); // per second (halved)
+  // full refill takes 600s at level 1; each Fast Recharge level makes it 25% faster
+  const regenRate = () => (maxEnergy() / 600) * (1 + (state.regenLevel - 1) * 0.25);
 
   const LEVELS = [
     { need: 0,        title: 'Rookie' },
@@ -748,7 +749,7 @@
   let saveTimer = null;
   function scheduleSave() {
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(saveToServer, 2000); // save 2s after the last action
+    saveTimer = setTimeout(saveToServer, 800); // save 0.8s after the last action
   }
 
   setInterval(saveToServer, 30000); // backup save loop
