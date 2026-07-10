@@ -310,6 +310,63 @@
   }
   .name-box .name-save:active { transform: scale(.97); }
 
+  /* ---------- Tabs & pages ---------- */
+  .page { flex: 1; display: none; flex-direction: column; min-height: 0; overflow-y: auto; }
+  .page.show { display: flex; }
+  .page-title { font-size: 15px; font-weight: 800; margin: 14px 0 10px; }
+  .tabbar { display: flex; gap: 6px; padding-top: 10px; margin-top: 10px; border-top: 1px solid #2e2657; }
+  .tab { flex: 1; text-align: center; padding: 7px 2px; border-radius: 12px; font-size: 10.5px; font-weight: 700; color: var(--muted); cursor: pointer; border: 1px solid transparent; }
+  .tab .ic { display: block; font-size: 17px; margin-bottom: 2px; }
+  .tab.active { background: var(--bg-card); color: var(--text); border-color: #2e2657; }
+
+  /* ---------- Tasks & friends ---------- */
+  .task-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--bg-card); border: 1px solid #2e2657; border-radius: 14px; padding: 11px 12px; margin-bottom: 8px; }
+  .task-info { font-size: 13px; font-weight: 700; }
+  .task-info .rw { color: var(--gold); font-size: 11px; font-weight: 800; margin-top: 2px; }
+  .task-btn { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #3a2a00; border: none; border-radius: 10px; font-family: inherit; font-size: 12px; font-weight: 900; padding: 9px 16px; cursor: pointer; white-space: nowrap; }
+  .task-btn:active { transform: scale(.96); }
+  .task-btn.done { background: var(--bg-card-2); color: var(--muted); border: 1px solid #2e2657; }
+  .task-btn.wide { width: 100%; margin-top: 8px; padding: 12px; font-size: 13px; }
+  .task-btn.alt { background: var(--bg-card); color: var(--text); border: 1px solid var(--violet); }
+  .friends-stats { display: flex; gap: 8px; margin-bottom: 10px; }
+  .fstat { flex: 1; background: var(--bg-card); border: 1px solid #2e2657; border-radius: 12px; padding: 10px; text-align: center; }
+  .fstat .v { font-size: 18px; font-weight: 900; color: var(--gold); }
+  .fstat .l { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .invite-box { background: var(--bg-deep); border: 1px dashed #2e2657; border-radius: 12px; padding: 10px; font-size: 11px; color: var(--muted); word-break: break-all; text-align: center; }
+  .hint-small { font-size: 11px; color: var(--muted); text-align: center; margin-top: 10px; }
+
+  /* ---------- Leaderboard ---------- */
+  .rank-row { display: flex; align-items: center; gap: 10px; background: var(--bg-card); border: 1px solid #2e2657; border-radius: 12px; padding: 9px 12px; margin-bottom: 6px; font-size: 13px; }
+  .rank-row.me { border-color: var(--gold); }
+  .rank-row .rk { font-weight: 900; color: var(--violet); min-width: 26px; }
+  .rank-row .nm { flex: 1; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rank-row .sc { font-weight: 800; color: var(--gold); font-variant-numeric: tabular-nums; }
+
+  /* ---------- About ---------- */
+  .about-card { background: var(--bg-card); border: 1px solid #2e2657; border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; font-size: 12.5px; line-height: 1.55; }
+  .about-card b { display: block; margin-bottom: 4px; color: var(--gold); }
+
+  /* ---------- Language ---------- */
+  .lang-btn {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    background: var(--bg-card);
+    border: 1px solid #2e2657;
+    display: grid; place-items: center;
+    cursor: pointer; font-size: 16px;
+  }
+  .lang-row {
+    padding: 10px;
+    border: 1px solid #2e2657;
+    border-radius: 10px;
+    margin-top: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 14px;
+    background: var(--bg-deep);
+  }
+  .lang-row.active { border-color: var(--gold); color: var(--gold); }
+
   /* ---------- Toast ---------- */
   .toast {
     position: fixed;
@@ -332,16 +389,19 @@
 <body>
 <div id="app">
 
+<div class="page show" id="pageGame">
+
   <div class="header">
     <div class="player">
       <div class="avatar">👤</div>
       <span id="playerName">Player</span>
     </div>
-    <div class="level-chip">Level <b id="levelNum">1</b> · <span id="levelTitle">Rookie</span></div>
+    <div class="level-chip"><span id="lblLevelChip">Level</span> <b id="levelNum">1</b> · <span id="levelTitle">Rookie</span></div>
+    <div class="lang-btn" id="langBtn">🌐</div>
   </div>
 
   <div class="balance">
-    <div class="label">Your Balance</div>
+    <div class="label" id="lblBalance">Your Balance</div>
     <div class="amount">
       <svg class="mini-atom" viewBox="0 0 100 100">
         <g stroke="#f6c945" stroke-width="5" fill="none">
@@ -358,7 +418,7 @@
 
   <div class="progress-wrap">
     <div class="progress-meta">
-      <span>Level progress</span>
+      <span id="lblProgress">Level progress</span>
       <span id="progressText">0 / 1,000</span>
     </div>
     <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
@@ -378,7 +438,7 @@
         <circle cx="28" cy="12" r="5" fill="#7a5400"/>
       </svg>
     </div>
-    <div class="hint">Tap the coin to earn NTR</div>
+    <div class="hint" id="lblHint">Tap the coin to earn NTR</div>
   </div>
 
   <div class="energy">
@@ -390,27 +450,78 @@
   <div class="upgrades">
     <div class="upg" id="upgTap">
       <div class="icon">👆</div>
-      <div class="name">Multitap</div>
+      <div class="name" id="lblMultitap">Multitap</div>
       <div class="lvl" id="upgTapLvl">Level 1</div>
-      <div class="cost">📺 Watch Ad</div>
+      <div class="cost" id="upgTapCost">500 NTR</div>
     </div>
     <div class="upg" id="upgEnergy">
       <div class="icon">🔋</div>
-      <div class="name">Energy Limit</div>
+      <div class="name" id="lblEnergyLimit">Energy Limit</div>
       <div class="lvl" id="upgEnergyLvl">Level 1</div>
-      <div class="cost">📺 Watch Ad</div>
+      <div class="cost" id="upgEnergyCost">750 NTR</div>
     </div>
-    <div class="upg" id="upgRegen">
-      <div class="icon">♻️</div>
-      <div class="name">Fast Recharge</div>
-      <div class="lvl" id="upgRegenLvl">Level 1</div>
-      <div class="cost">📺 Watch Ad</div>
+    <div class="upg" id="watchAd">
+      <div class="icon">⚡</div>
+      <div class="name" id="lblRefill">Refill Energy</div>
+      <div class="lvl" id="lblFullRecharge">Full recharge</div>
+      <div class="cost" id="lblRefillCost">📺 Watch Ad</div>
     </div>
   </div>
 
-  <div class="reset-note">⏰ Upgrade levels reset every 24 hours · Resets in <b id="resetTimer">24:00:00</b></div>
+  <div class="reset-note">⏰ <span id="lblReset">Upgrade levels reset every 24 hours · Resets in</span> <b id="resetTimer">24:00:00</b></div>
 
-  <div class="ad-btn" id="watchAd">📺 Watch Ad → Refill Energy <span>FREE</span></div>
+</div><!-- /pageGame -->
+
+<div class="page" id="pageTasks">
+  <h2 class="page-title" id="lblTasksTitle">📋 Tasks — Earn NTR</h2>
+  <div class="task-row">
+    <div class="task-info"><span id="lblTaskChannel">📢 Join our Channel</span><div class="rw">+300 NTR</div></div>
+    <button class="task-btn" id="taskChannel">Join</button>
+  </div>
+  <div class="task-row">
+    <div class="task-info"><span id="lblTaskGroup">💬 Join our Group</span><div class="rw">+400 NTR</div></div>
+    <button class="task-btn" id="taskGroup">Join</button>
+  </div>
+  <div class="task-row">
+    <div class="task-info"><span id="lblTaskInsta">📸 Follow us on Instagram</span><div class="rw">+500 NTR</div></div>
+    <button class="task-btn" id="taskInstagram">Follow</button>
+  </div>
+
+  <h2 class="page-title" style="margin-top:16px;" id="lblInviteTitle">👥 Invite Friends</h2>
+  <div class="friends-stats">
+    <div class="fstat"><div class="v" id="refCount">0</div><div class="l" id="lblInvited">Friends invited</div></div>
+    <div class="fstat"><div class="v" id="refEarned">0</div><div class="l" id="lblEarned">NTR earned</div></div>
+  </div>
+  <div class="invite-box" id="inviteLink">—</div>
+  <button class="task-btn wide" id="shareInvite">📤 Share Invite Link</button>
+  <button class="task-btn wide alt" id="copyInvite">📋 Copy Link</button>
+  <div class="hint-small" id="lblRefHint">+300 NTR for every friend who joins — unlimited! 🚀</div>
+</div><!-- /pageTasks -->
+
+<div class="page" id="pageRank">
+  <h2 class="page-title" id="lblRankTitle">🏆 Leaderboard</h2>
+  <div class="friends-stats">
+    <div class="fstat"><div class="v" id="myRank">—</div><div class="l" id="lblYourRank">Your rank</div></div>
+    <div class="fstat"><div class="v" id="totalPlayers">—</div><div class="l" id="lblTotalPlayers">Total players</div></div>
+  </div>
+  <div id="rankList"><div class="hint-small">Loading…</div></div>
+</div><!-- /pageRank -->
+
+<div class="page" id="pageAbout">
+  <h2 class="page-title" id="lblAboutTitle">ℹ️ About NeuronX</h2>
+  <div class="about-card"><b id="ab1t">⚛️ What is NeuronX?</b><span id="ab1b">NeuronX (NTR) is a tap-to-earn mining game on Telegram. Every tap mines NTR — your balance, upgrades and rank are saved forever.</span></div>
+  <div class="about-card"><b id="ab2t">🚀 Why start now?</b><span id="ab2b">Early miners always win the most. The sooner you start, the more NTR you stack — and your balance secures your position for future rewards and the planned airdrop.</span></div>
+  <div class="about-card"><b id="ab3t">🗺 Roadmap</b><span id="ab3b">✅ Phase 1 — Game launch<br>✅ Phase 2 — Tasks &amp; referrals<br>✅ Phase 3 — Global leaderboard<br>🔜 Phase 4 — Community events<br>🔜 Phase 5 — NTR token on TON + airdrop</span></div>
+  <div class="about-card"><b id="ab4t">💎 Our vision</b><span id="ab4b">We are building NeuronX to become a real community-driven token on TON. The bigger our community grows, the bigger NeuronX becomes — early players are always first in line. Keep tapping, keep inviting, be early. 🔥</span></div>
+  <div class="about-card"><b id="ab5t">🌐 Official links</b>📢 @neuronXcoin<br>💬 @neuronX_coin<br>📸 Instagram: @neuronX_coin</div>
+</div><!-- /pageAbout -->
+
+<div class="tabbar">
+  <div class="tab active" data-tab="Game"><span class="ic">🎮</span>Game</div>
+  <div class="tab" data-tab="Tasks"><span class="ic">📋</span>Tasks</div>
+  <div class="tab" data-tab="Rank"><span class="ic">🏆</span>Ranking</div>
+  <div class="tab" data-tab="About"><span class="ic">ℹ️</span>About</div>
+</div>
 
 </div>
 
@@ -424,9 +535,16 @@
 
 <div class="name-overlay" id="nameOverlay">
   <div class="name-box">
-    <div class="name-title">Choose your username</div>
+    <div class="name-title" id="lblChooseName">Choose your username</div>
     <input type="text" id="nameInput" maxlength="20" placeholder="Enter your name..." autocomplete="off">
     <button class="name-save" id="nameSave">Save & Play</button>
+  </div>
+</div>
+
+<div class="name-overlay" id="langSheet">
+  <div class="name-box" style="max-height:72vh; overflow-y:auto;">
+    <div class="name-title">🌐 Language</div>
+    <div id="langList"></div>
   </div>
 </div>
 
@@ -457,8 +575,13 @@
 
   const tapPower  = () => state.tapLevel; // 1 NTR per level
   const maxEnergy = () => 500 + (state.energyLevel - 1) * 250;
-  // full refill takes 600s at level 1; each Fast Recharge level makes it 25% faster
-  const regenRate = () => (maxEnergy() / 600) * (1 + (state.regenLevel - 1) * 0.25);
+  const regenRate = () => maxEnergy() / 720; // full refill takes 12 minutes
+
+  // gentle price curve: each level costs only ~20% more
+  const upgCost = {
+    tap:    () => Math.floor(500 * Math.pow(1.2, state.tapLevel - 1)),
+    energy: () => Math.floor(750 * Math.pow(1.2, state.energyLevel - 1)),
+  };
 
   const LEVELS = [
     { need: 0,        title: 'Rookie' },
@@ -497,15 +620,18 @@
       $('progressText').textContent = fmt(state.totalEarned) + ' / ' + fmt(next);
     } else {
       $('progressFill').style.width = '100%';
-      $('progressText').textContent = 'Max level!';
+      $('progressText').textContent = t('maxLevel');
     }
 
     $('energyFill').style.width = (state.energy / maxEnergy()) * 100 + '%';
     $('energyNum').textContent = fmt(Math.floor(state.energy)) + ' / ' + fmt(maxEnergy());
 
-    $('upgTapLvl').textContent    = 'Level ' + state.tapLevel;
-    $('upgEnergyLvl').textContent = 'Level ' + state.energyLevel;
-    $('upgRegenLvl').textContent  = 'Level ' + state.regenLevel;
+    $('upgTapLvl').textContent    = t('level') + ' ' + state.tapLevel;
+    $('upgEnergyLvl').textContent = t('level') + ' ' + state.energyLevel;
+    $('upgTapCost').textContent    = fmt(upgCost.tap()) + ' NTR';
+    $('upgEnergyCost').textContent = fmt(upgCost.energy()) + ' NTR';
+    $('upgTap').classList.toggle('affordable', state.balance >= upgCost.tap());
+    $('upgEnergy').classList.toggle('affordable', state.balance >= upgCost.energy());
   }
 
   // ---------- Toast ----------
@@ -526,10 +652,10 @@
   // Username modal save button
   $('nameSave').addEventListener('click', () => {
     const v = $('nameInput').value.trim();
-    if (!v) { toast('Please enter a username'); return; }
+    if (!v) { toast(t('tEnterName')); return; }
     $('playerName').textContent = v;
     $('nameOverlay').classList.remove('show');
-    toast('Welcome, ' + v + '! 👋');
+    toast(t('tWelcome') + ', ' + v + '! 👋');
     if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
   });
   $('nameInput').addEventListener('keydown', e => {
@@ -541,7 +667,7 @@
     const energyCost = 1;
 
     if (state.energy < energyCost) {
-      toast('Not enough energy! Wait a moment ⚡');
+      toast(t('tNoEnergy'));
       return;
     }
     state.energy -= energyCost;
@@ -627,7 +753,7 @@
         .catch(() => {
           // user skipped the ad or an error occurred → no reward
           adRunning = false;
-          toast('Ad was skipped — no reward this time');
+          toast(t('tAdSkip'));
         });
       return;
     }
@@ -654,19 +780,33 @@
   }
 
   // ---------- Upgrades (watch an ad to level up) ----------
+  // ---------- Upgrades (paid with NTR) ----------
+  function buy(costFn, apply, label) {
+    const cost = costFn();
+    if (state.balance < cost) {
+      toast(t('tNoNTR'));
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+      return;
+    }
+    state.balance = Math.round((state.balance - cost) * 10) / 10;
+    apply();
+    dirty = true;
+    scheduleSave();
+    toast(label + ' ' + t('tUpgraded'));
+    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    render();
+  }
   $('upgTap').addEventListener('click', () =>
-    showAd(() => { state.tapLevel++; toast('Multitap upgraded! 🎉'); }));
+    buy(upgCost.tap, () => state.tapLevel++, t('multitap')));
   $('upgEnergy').addEventListener('click', () =>
-    showAd(() => { state.energyLevel++; state.energy = maxEnergy(); toast('Energy Limit upgraded! 🎉'); }));
-  $('upgRegen').addEventListener('click', () =>
-    showAd(() => { state.regenLevel++; toast('Fast Recharge upgraded! 🎉'); }));
+    buy(upgCost.energy, () => { state.energyLevel++; state.energy = maxEnergy(); }, t('energyLimit')));
 
   // ---------- Watch ad → refill energy ----------
   $('watchAd').addEventListener('click', () => {
-    if (state.energy >= maxEnergy()) { toast('Energy is already full!'); return; }
+    if (state.energy >= maxEnergy()) { toast(t('tEnergyFull')); return; }
     showAd(() => {
       state.energy = maxEnergy();
-      toast('Energy fully recharged! ⚡');
+      toast(t('tRecharged'));
     });
   });
 
@@ -687,7 +827,7 @@
       state.energy = Math.min(state.energy, maxEnergy());
       resetAt = Date.now() + RESET_MS;
       left = RESET_MS;
-      toast('Daily reset! Upgrade levels are back to 1 🌅');
+      toast(t('tDailyReset'));
       render();
     }
     const h = Math.floor(left / 3600000);
@@ -710,11 +850,11 @@
   let serverReady = false;
   let dirty = false;
 
-  async function api(path) {
+  async function api(path, extra) {
     const res = await fetch(API_URL + path, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ initData: initData, state: state })
+      body: JSON.stringify(Object.assign({ initData: initData, state: state, lang: LANG }, extra || {}))
     });
     if (!res.ok) throw new Error('api ' + res.status);
     return res.json();
@@ -723,11 +863,17 @@
   async function loadFromServer() {
     if (!initData) return; // running outside Telegram: nothing to load
     try {
-      const data = await api('/load');
+      const data = await api('/load', {
+        startParam: (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || ''
+      });
       Object.assign(state, data.state);
       state.energy = Math.min(state.energy, maxEnergy());
       if (data.resetAt) resetAt = data.resetAt;
       if (data.name) $('playerName').textContent = data.name;
+      if (data.tasks) tasksDone = data.tasks;
+      refCount = data.refCount || 0;
+      refEarned = data.refEarned || 0;
+      if (data.lang && I18N[data.lang]) { LANG = data.lang; applyLang(); }
       serverReady = true;
       render();
     } catch (e) {
@@ -756,6 +902,190 @@
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') saveToServer();
   });
+
+  // ---------- Languages (i18n) ----------
+  const LANGS = [['en','English'],['fa','فارسی'],['ru','Русский'],['es','Español'],['pt','Português'],['de','Deutsch'],['fr','Français'],['nl','Nederlands'],['sv','Svenska'],['zh','中文']];
+  const I18N = {
+  en:{tabGame:'Game',tabTasks:'Tasks',tabRank:'Ranking',tabAbout:'About',balance:'Your Balance',progress:'Level progress',maxLevel:'Max level!',level:'Level',hint:'Tap the coin to earn NTR',multitap:'Multitap',energyLimit:'Energy Limit',refill:'Refill Energy',fullRecharge:'Full recharge',watchAd:'📺 Watch Ad',resetNote:'Upgrade levels reset every 24 hours · Resets in',tasksTitle:'📋 Tasks — Earn NTR',taskChannel:'📢 Join our Channel',taskGroup:'💬 Join our Group',taskInsta:'📸 Follow us on Instagram',join:'Join',follow:'Follow',check:'Check ✓',done:'✅ Done',inviteTitle:'👥 Invite Friends',invited:'Friends invited',earned:'NTR earned',share:'📤 Share Invite Link',copy:'📋 Copy Link',refHint:'+300 NTR for every friend who joins — unlimited! 🚀',rankTitle:'🏆 Leaderboard',yourRank:'Your rank',totalPlayers:'Total players',loading:'Loading…',noPlayers:'No players yet',rankFail:'Failed to load — try again',rankTg:'Open inside Telegram to see rankings',aboutTitle:'ℹ️ About NeuronX',ab1t:'⚛️ What is NeuronX?',ab1:'NeuronX (NTR) is a tap-to-earn mining game on Telegram. Every tap mines NTR — your balance, upgrades and rank are saved forever.',ab2t:'🚀 Why start now?',ab2:'Early miners always win the most. The sooner you start, the more NTR you stack — and your balance secures your position for future rewards and the planned airdrop.',ab3t:'🗺 Roadmap',ab3:'✅ Phase 1 — Game launch<br>✅ Phase 2 — Tasks & referrals<br>✅ Phase 3 — Global leaderboard<br>🔜 Phase 4 — Community events<br>🔜 Phase 5 — NTR token on TON + airdrop',ab4t:'💎 Our vision',ab4:'We are building NeuronX to become a real community-driven token on TON. The bigger our community grows, the bigger NeuronX becomes — early players are always first in line. Keep tapping, keep inviting, be early. 🔥',ab5t:'🌐 Official links',tNoEnergy:'Not enough energy! Wait a moment ⚡',tNoNTR:'Not enough NTR!',tUpgraded:'upgraded! 🎉',tEnergyFull:'Energy is already full!',tRecharged:'Energy fully recharged! ⚡',tAdSkip:'Ad was skipped — no reward this time',tCopied:'Link copied! 📋',tNotJoined:'You have not joined yet!',tVerifyFail:'Could not verify — try again',tNetErr:'Network error — try again',tWelcome:'Welcome',tDailyReset:'Daily reset! Upgrade levels are back to 1 🌅',tEnterName:'Please enter a username',chooseName:'Choose your username',savePlay:'Save & Play',namePh:'Enter your name...',shareText:'🪙 Join me in NeuronX — tap to earn NTR coins!',openTg:'Open the game inside Telegram!'},
+  fa:{tabGame:'بازی',tabTasks:'ماموریت‌ها',tabRank:'رتبه‌بندی',tabAbout:'درباره',balance:'موجودی شما',progress:'پیشرفت سطح',maxLevel:'حداکثر سطح!',level:'سطح',hint:'برای کسب NTR روی سکه بزن',multitap:'مولتی‌تپ',energyLimit:'ظرفیت انرژی',refill:'شارژ انرژی',fullRecharge:'شارژ کامل',watchAd:'📺 تماشای تبلیغ',resetNote:'سطح ارتقاها هر ۲۴ ساعت صفر می‌شود · ریست تا',tasksTitle:'📋 ماموریت‌ها — NTR بگیر',taskChannel:'📢 عضویت در کانال',taskGroup:'💬 عضویت در گروه',taskInsta:'📸 فالو در اینستاگرام',join:'عضویت',follow:'فالو',check:'بررسی ✓',done:'✅ انجام شد',inviteTitle:'👥 دعوت دوستان',invited:'دوستان دعوت‌شده',earned:'NTR کسب‌شده',share:'📤 اشتراک لینک دعوت',copy:'📋 کپی لینک',refHint:'برای هر دوست ۳۰۰ NTR — نامحدود! 🚀',rankTitle:'🏆 جدول برترین‌ها',yourRank:'رتبه شما',totalPlayers:'کل بازیکنان',loading:'در حال بارگذاری…',noPlayers:'هنوز بازیکنی نیست',rankFail:'خطا در بارگذاری — دوباره تلاش کن',rankTg:'برای دیدن رتبه‌ها بازی را در تلگرام باز کن',aboutTitle:'ℹ️ درباره NeuronX',ab1t:'⚛️ NeuronX چیست؟',ab1:'NeuronX (NTR) یک بازی تپ‌تو‌ارن در تلگرام است. هر ضربه NTR استخراج می‌کند — موجودی، ارتقاها و رتبه‌ات برای همیشه ذخیره می‌شود.',ab2t:'🚀 چرا همین حالا؟',ab2:'ماینرهای اولیه همیشه بیشترین سود را می‌برند. هرچه زودتر شروع کنی NTR بیشتری جمع می‌کنی و جایگاهت برای پاداش‌ها و ایردراپ برنامه‌ریزی‌شده محکم‌تر می‌شود.',ab3t:'🗺 نقشه راه',ab3:'✅ فاز ۱ — راه‌اندازی بازی<br>✅ فاز ۲ — ماموریت‌ها و رفرال<br>✅ فاز ۳ — جدول جهانی<br>🔜 فاز ۴ — رویدادهای کامیونیتی<br>🔜 فاز ۵ — توکن NTR روی TON + ایردراپ',ab4t:'💎 چشم‌انداز ما',ab4:'هدف ما تبدیل NeuronX به یک توکن واقعی کامیونیتی‌محور روی TON است. هرچه جامعه بزرگ‌تر شود، NeuronX بزرگ‌تر می‌شود — بازیکنان اولیه همیشه اول صف هستند. 🔥',ab5t:'🌐 لینک‌های رسمی',tNoEnergy:'انرژی کافی نیست! کمی صبر کن ⚡',tNoNTR:'NTR کافی نداری!',tUpgraded:'ارتقا یافت! 🎉',tEnergyFull:'انرژی همین الان پر است!',tRecharged:'انرژی کامل شارژ شد! ⚡',tAdSkip:'تبلیغ رد شد — این بار پاداشی نیست',tCopied:'لینک کپی شد! 📋',tNotJoined:'هنوز عضو نشده‌ای!',tVerifyFail:'تأیید نشد — دوباره تلاش کن',tNetErr:'خطای شبکه — دوباره تلاش کن',tWelcome:'خوش آمدی',tDailyReset:'ریست روزانه! سطح ارتقاها به ۱ برگشت 🌅',tEnterName:'یک نام وارد کن',chooseName:'نام کاربری‌ات را انتخاب کن',savePlay:'ذخیره و بازی',namePh:'نامت را بنویس...',shareText:'🪙 با من در NeuronX بازی کن — با ضربه NTR بگیر!',openTg:'بازی را داخل تلگرام باز کن!'},
+  ru:{tabGame:'Игра',tabTasks:'Задания',tabRank:'Рейтинг',tabAbout:'О нас',balance:'Ваш баланс',progress:'Прогресс уровня',maxLevel:'Макс. уровень!',level:'Уровень',hint:'Тапай по монете и зарабатывай NTR',multitap:'Мультитап',energyLimit:'Лимит энергии',refill:'Заряд энергии',fullRecharge:'Полный заряд',watchAd:'📺 Смотреть рекламу',resetNote:'Уровни улучшений сбрасываются каждые 24 ч · Сброс через',tasksTitle:'📋 Задания — получай NTR',taskChannel:'📢 Подпишись на канал',taskGroup:'💬 Вступи в группу',taskInsta:'📸 Подпишись в Instagram',join:'Вступить',follow:'Подписаться',check:'Проверить ✓',done:'✅ Готово',inviteTitle:'👥 Пригласи друзей',invited:'Друзей приглашено',earned:'NTR заработано',share:'📤 Поделиться ссылкой',copy:'📋 Копировать',refHint:'+300 NTR за каждого друга — без лимита! 🚀',rankTitle:'🏆 Таблица лидеров',yourRank:'Ваш ранг',totalPlayers:'Всего игроков',loading:'Загрузка…',noPlayers:'Пока нет игроков',rankFail:'Ошибка загрузки — попробуйте ещё раз',rankTg:'Откройте игру в Telegram, чтобы увидеть рейтинг',aboutTitle:'ℹ️ О NeuronX',ab1t:'⚛️ Что такое NeuronX?',ab1:'NeuronX (NTR) — tap-to-earn игра в Telegram. Каждый тап добывает NTR — баланс, улучшения и ранг сохраняются навсегда.',ab2t:'🚀 Почему сейчас?',ab2:'Ранние майнеры всегда выигрывают больше. Чем раньше начнёшь, тем больше NTR накопишь — и тем прочнее твоя позиция для будущих наград и запланированного аирдропа.',ab3t:'🗺 Дорожная карта',ab3:'✅ Фаза 1 — Запуск игры<br>✅ Фаза 2 — Задания и рефералы<br>✅ Фаза 3 — Мировой рейтинг<br>🔜 Фаза 4 — Ивенты сообщества<br>🔜 Фаза 5 — Токен NTR на TON + аирдроп',ab4t:'💎 Наше видение',ab4:'Мы строим NeuronX как настоящий комьюнити-токен на TON. Чем больше сообщество — тем больше NeuronX. Ранние игроки всегда первые в очереди. 🔥',ab5t:'🌐 Официальные ссылки',tNoEnergy:'Недостаточно энергии! Подожди ⚡',tNoNTR:'Недостаточно NTR!',tUpgraded:'улучшено! 🎉',tEnergyFull:'Энергия уже полная!',tRecharged:'Энергия полностью заряжена! ⚡',tAdSkip:'Реклама пропущена — награды нет',tCopied:'Ссылка скопирована! 📋',tNotJoined:'Ты ещё не вступил!',tVerifyFail:'Не удалось проверить — попробуй ещё',tNetErr:'Ошибка сети — попробуй ещё',tWelcome:'Добро пожаловать',tDailyReset:'Ежедневный сброс! Уровни снова 1 🌅',tEnterName:'Введите имя',chooseName:'Выберите имя',savePlay:'Сохранить и играть',namePh:'Ваше имя...',shareText:'🪙 Играй со мной в NeuronX — тапай и зарабатывай NTR!',openTg:'Откройте игру в Telegram!'},
+  es:{tabGame:'Juego',tabTasks:'Tareas',tabRank:'Ranking',tabAbout:'Info',balance:'Tu saldo',progress:'Progreso de nivel',maxLevel:'¡Nivel máximo!',level:'Nivel',hint:'Toca la moneda para ganar NTR',multitap:'Multitap',energyLimit:'Límite de energía',refill:'Recargar energía',fullRecharge:'Recarga completa',watchAd:'📺 Ver anuncio',resetNote:'Las mejoras se reinician cada 24 h · Reinicio en',tasksTitle:'📋 Tareas — Gana NTR',taskChannel:'📢 Únete al canal',taskGroup:'💬 Únete al grupo',taskInsta:'📸 Síguenos en Instagram',join:'Unirse',follow:'Seguir',check:'Verificar ✓',done:'✅ Hecho',inviteTitle:'👥 Invita amigos',invited:'Amigos invitados',earned:'NTR ganados',share:'📤 Compartir enlace',copy:'📋 Copiar enlace',refHint:'¡+300 NTR por cada amigo — sin límite! 🚀',rankTitle:'🏆 Clasificación',yourRank:'Tu puesto',totalPlayers:'Jugadores totales',loading:'Cargando…',noPlayers:'Aún no hay jugadores',rankFail:'Error al cargar — inténtalo de nuevo',rankTg:'Abre el juego en Telegram para ver el ranking',aboutTitle:'ℹ️ Sobre NeuronX',ab1t:'⚛️ ¿Qué es NeuronX?',ab1:'NeuronX (NTR) es un juego tap-to-earn en Telegram. Cada toque mina NTR: tu saldo, mejoras y rango se guardan para siempre.',ab2t:'🚀 ¿Por qué ahora?',ab2:'Los mineros tempranos siempre ganan más. Cuanto antes empieces, más NTR acumulas y aseguras tu posición para futuras recompensas y el airdrop planeado.',ab3t:'🗺 Hoja de ruta',ab3:'✅ Fase 1 — Lanzamiento<br>✅ Fase 2 — Tareas y referidos<br>✅ Fase 3 — Ranking global<br>🔜 Fase 4 — Eventos<br>🔜 Fase 5 — Token NTR en TON + airdrop',ab4t:'💎 Nuestra visión',ab4:'Construimos NeuronX para ser un token comunitario real en TON. Cuanto más crece la comunidad, más grande es NeuronX — los primeros siempre van primero. 🔥',ab5t:'🌐 Enlaces oficiales',tNoEnergy:'¡Sin energía! Espera un momento ⚡',tNoNTR:'¡NTR insuficiente!',tUpgraded:'¡mejorado! 🎉',tEnergyFull:'¡La energía ya está llena!',tRecharged:'¡Energía recargada! ⚡',tAdSkip:'Anuncio omitido — sin recompensa',tCopied:'¡Enlace copiado! 📋',tNotJoined:'¡Aún no te has unido!',tVerifyFail:'No se pudo verificar — reintenta',tNetErr:'Error de red — reintenta',tWelcome:'Bienvenido',tDailyReset:'¡Reinicio diario! Mejoras a nivel 1 🌅',tEnterName:'Escribe un nombre',chooseName:'Elige tu nombre',savePlay:'Guardar y jugar',namePh:'Tu nombre...',shareText:'🪙 ¡Juega conmigo a NeuronX — toca y gana NTR!',openTg:'¡Abre el juego en Telegram!'},
+  pt:{tabGame:'Jogo',tabTasks:'Tarefas',tabRank:'Ranking',tabAbout:'Sobre',balance:'Seu saldo',progress:'Progresso de nível',maxLevel:'Nível máximo!',level:'Nível',hint:'Toque na moeda para ganhar NTR',multitap:'Multitap',energyLimit:'Limite de energia',refill:'Recarregar energia',fullRecharge:'Recarga completa',watchAd:'📺 Ver anúncio',resetNote:'Melhorias reiniciam a cada 24 h · Reinício em',tasksTitle:'📋 Tarefas — Ganhe NTR',taskChannel:'📢 Entre no canal',taskGroup:'💬 Entre no grupo',taskInsta:'📸 Siga no Instagram',join:'Entrar',follow:'Seguir',check:'Verificar ✓',done:'✅ Feito',inviteTitle:'👥 Convide amigos',invited:'Amigos convidados',earned:'NTR ganhos',share:'📤 Compartilhar link',copy:'📋 Copiar link',refHint:'+300 NTR por cada amigo — sem limite! 🚀',rankTitle:'🏆 Classificação',yourRank:'Sua posição',totalPlayers:'Total de jogadores',loading:'Carregando…',noPlayers:'Ainda sem jogadores',rankFail:'Falha ao carregar — tente de novo',rankTg:'Abra o jogo no Telegram para ver o ranking',aboutTitle:'ℹ️ Sobre o NeuronX',ab1t:'⚛️ O que é NeuronX?',ab1:'NeuronX (NTR) é um jogo tap-to-earn no Telegram. Cada toque minera NTR — saldo, melhorias e ranking ficam salvos para sempre.',ab2t:'🚀 Por que agora?',ab2:'Mineradores iniciais sempre ganham mais. Quanto antes começar, mais NTR acumula — e garante sua posição para recompensas futuras e o airdrop planejado.',ab3t:'🗺 Roteiro',ab3:'✅ Fase 1 — Lançamento<br>✅ Fase 2 — Tarefas e indicações<br>✅ Fase 3 — Ranking global<br>🔜 Fase 4 — Eventos<br>🔜 Fase 5 — Token NTR na TON + airdrop',ab4t:'💎 Nossa visão',ab4:'Estamos construindo o NeuronX para ser um token comunitário real na TON. Quanto maior a comunidade, maior o NeuronX — os primeiros sempre saem na frente. 🔥',ab5t:'🌐 Links oficiais',tNoEnergy:'Sem energia! Aguarde ⚡',tNoNTR:'NTR insuficiente!',tUpgraded:'melhorado! 🎉',tEnergyFull:'A energia já está cheia!',tRecharged:'Energia recarregada! ⚡',tAdSkip:'Anúncio pulado — sem recompensa',tCopied:'Link copiado! 📋',tNotJoined:'Você ainda não entrou!',tVerifyFail:'Não foi possível verificar — tente de novo',tNetErr:'Erro de rede — tente de novo',tWelcome:'Bem-vindo',tDailyReset:'Reinício diário! Melhorias no nível 1 🌅',tEnterName:'Digite um nome',chooseName:'Escolha seu nome',savePlay:'Salvar e jogar',namePh:'Seu nome...',shareText:'🪙 Jogue NeuronX comigo — toque e ganhe NTR!',openTg:'Abra o jogo no Telegram!'},
+  de:{tabGame:'Spiel',tabTasks:'Aufgaben',tabRank:'Rangliste',tabAbout:'Info',balance:'Dein Guthaben',progress:'Level-Fortschritt',maxLevel:'Max. Level!',level:'Level',hint:'Tippe auf die Münze und verdiene NTR',multitap:'Multitap',energyLimit:'Energielimit',refill:'Energie aufladen',fullRecharge:'Volle Aufladung',watchAd:'📺 Werbung ansehen',resetNote:'Upgrades werden alle 24 Std. zurückgesetzt · Reset in',tasksTitle:'📋 Aufgaben — NTR verdienen',taskChannel:'📢 Kanal beitreten',taskGroup:'💬 Gruppe beitreten',taskInsta:'📸 Auf Instagram folgen',join:'Beitreten',follow:'Folgen',check:'Prüfen ✓',done:'✅ Erledigt',inviteTitle:'👥 Freunde einladen',invited:'Eingeladene Freunde',earned:'Verdiente NTR',share:'📤 Link teilen',copy:'📋 Link kopieren',refHint:'+300 NTR für jeden Freund — unbegrenzt! 🚀',rankTitle:'🏆 Rangliste',yourRank:'Dein Rang',totalPlayers:'Spieler gesamt',loading:'Laden…',noPlayers:'Noch keine Spieler',rankFail:'Laden fehlgeschlagen — erneut versuchen',rankTg:'Öffne das Spiel in Telegram für die Rangliste',aboutTitle:'ℹ️ Über NeuronX',ab1t:'⚛️ Was ist NeuronX?',ab1:'NeuronX (NTR) ist ein Tap-to-Earn-Spiel auf Telegram. Jeder Tap schürft NTR — Guthaben, Upgrades und Rang werden dauerhaft gespeichert.',ab2t:'🚀 Warum jetzt?',ab2:'Frühe Miner gewinnen immer am meisten. Je früher du startest, desto mehr NTR sammelst du — und sicherst deine Position für künftige Belohnungen und den geplanten Airdrop.',ab3t:'🗺 Roadmap',ab3:'✅ Phase 1 — Spielstart<br>✅ Phase 2 — Aufgaben & Referrals<br>✅ Phase 3 — Globale Rangliste<br>🔜 Phase 4 — Community-Events<br>🔜 Phase 5 — NTR-Token auf TON + Airdrop',ab4t:'💎 Unsere Vision',ab4:'Wir bauen NeuronX zu einem echten Community-Token auf TON. Je größer die Community, desto größer NeuronX — frühe Spieler stehen immer ganz vorne. 🔥',ab5t:'🌐 Offizielle Links',tNoEnergy:'Nicht genug Energie! Kurz warten ⚡',tNoNTR:'Nicht genug NTR!',tUpgraded:'verbessert! 🎉',tEnergyFull:'Energie ist schon voll!',tRecharged:'Energie voll aufgeladen! ⚡',tAdSkip:'Werbung übersprungen — keine Belohnung',tCopied:'Link kopiert! 📋',tNotJoined:'Du bist noch nicht beigetreten!',tVerifyFail:'Prüfung fehlgeschlagen — erneut versuchen',tNetErr:'Netzwerkfehler — erneut versuchen',tWelcome:'Willkommen',tDailyReset:'Täglicher Reset! Upgrades wieder auf 1 🌅',tEnterName:'Bitte Namen eingeben',chooseName:'Wähle deinen Namen',savePlay:'Speichern & spielen',namePh:'Dein Name...',shareText:'🪙 Spiel NeuronX mit mir — tippen und NTR verdienen!',openTg:'Öffne das Spiel in Telegram!'},
+  fr:{tabGame:'Jeu',tabTasks:'Tâches',tabRank:'Classement',tabAbout:'À propos',balance:'Votre solde',progress:'Progression',maxLevel:'Niveau max !',level:'Niveau',hint:'Tape la pièce pour gagner des NTR',multitap:'Multitap',energyLimit:"Limite d'énergie",refill:'Recharger',fullRecharge:'Recharge complète',watchAd:'📺 Voir une pub',resetNote:'Les améliorations se réinitialisent toutes les 24 h · Reset dans',tasksTitle:'📋 Tâches — Gagne des NTR',taskChannel:'📢 Rejoins la chaîne',taskGroup:'💬 Rejoins le groupe',taskInsta:'📸 Suis-nous sur Instagram',join:'Rejoindre',follow:'Suivre',check:'Vérifier ✓',done:'✅ Fait',inviteTitle:'👥 Invite des amis',invited:'Amis invités',earned:'NTR gagnés',share:'📤 Partager le lien',copy:'📋 Copier le lien',refHint:'+300 NTR par ami — illimité ! 🚀',rankTitle:'🏆 Classement',yourRank:'Ton rang',totalPlayers:'Joueurs au total',loading:'Chargement…',noPlayers:'Pas encore de joueurs',rankFail:'Échec du chargement — réessaie',rankTg:'Ouvre le jeu dans Telegram pour voir le classement',aboutTitle:'ℹ️ À propos de NeuronX',ab1t:"⚛️ C'est quoi NeuronX ?",ab1:'NeuronX (NTR) est un jeu tap-to-earn sur Telegram. Chaque tap mine des NTR — solde, améliorations et rang sont sauvegardés pour toujours.',ab2t:'🚀 Pourquoi maintenant ?',ab2:"Les premiers mineurs gagnent toujours le plus. Plus tu commences tôt, plus tu accumules de NTR — et tu sécurises ta place pour les futures récompenses et l'airdrop prévu.",ab3t:'🗺 Feuille de route',ab3:'✅ Phase 1 — Lancement<br>✅ Phase 2 — Tâches & parrainage<br>✅ Phase 3 — Classement mondial<br>🔜 Phase 4 — Événements<br>🔜 Phase 5 — Token NTR sur TON + airdrop',ab4t:'💎 Notre vision',ab4:'Nous construisons NeuronX pour devenir un vrai token communautaire sur TON. Plus la communauté grandit, plus NeuronX grandit — les premiers joueurs passent toujours en premier. 🔥',ab5t:'🌐 Liens officiels',tNoEnergy:"Pas assez d'énergie ! Attends ⚡",tNoNTR:'Pas assez de NTR !',tUpgraded:'amélioré ! 🎉',tEnergyFull:"L'énergie est déjà pleine !",tRecharged:'Énergie rechargée ! ⚡',tAdSkip:'Pub ignorée — pas de récompense',tCopied:'Lien copié ! 📋',tNotJoined:"Tu n'as pas encore rejoint !",tVerifyFail:'Vérification impossible — réessaie',tNetErr:'Erreur réseau — réessaie',tWelcome:'Bienvenue',tDailyReset:'Reset quotidien ! Améliorations au niveau 1 🌅',tEnterName:'Entre un nom',chooseName:'Choisis ton nom',savePlay:'Enregistrer & jouer',namePh:'Ton nom...',shareText:'🪙 Joue à NeuronX avec moi — tape et gagne des NTR !',openTg:'Ouvre le jeu dans Telegram !'},
+  nl:{tabGame:'Spel',tabTasks:'Taken',tabRank:'Ranglijst',tabAbout:'Over',balance:'Jouw saldo',progress:'Levelvoortgang',maxLevel:'Max level!',level:'Level',hint:'Tik op de munt en verdien NTR',multitap:'Multitap',energyLimit:'Energielimiet',refill:'Energie opladen',fullRecharge:'Volledig opladen',watchAd:'📺 Advertentie kijken',resetNote:'Upgrades resetten elke 24 uur · Reset over',tasksTitle:'📋 Taken — Verdien NTR',taskChannel:'📢 Word lid van het kanaal',taskGroup:'💬 Word lid van de groep',taskInsta:'📸 Volg ons op Instagram',join:'Lid worden',follow:'Volgen',check:'Controleer ✓',done:'✅ Klaar',inviteTitle:'👥 Nodig vrienden uit',invited:'Vrienden uitgenodigd',earned:'NTR verdiend',share:'📤 Deel uitnodigingslink',copy:'📋 Kopieer link',refHint:'+300 NTR per vriend — onbeperkt! 🚀',rankTitle:'🏆 Ranglijst',yourRank:'Jouw rang',totalPlayers:'Totaal spelers',loading:'Laden…',noPlayers:'Nog geen spelers',rankFail:'Laden mislukt — probeer opnieuw',rankTg:'Open het spel in Telegram voor de ranglijst',aboutTitle:'ℹ️ Over NeuronX',ab1t:'⚛️ Wat is NeuronX?',ab1:'NeuronX (NTR) is een tap-to-earn game op Telegram. Elke tik mijnt NTR — je saldo, upgrades en rang worden voor altijd opgeslagen.',ab2t:'🚀 Waarom nu?',ab2:'Vroege miners winnen altijd het meest. Hoe eerder je begint, hoe meer NTR je verzamelt — en je verzekert je positie voor toekomstige beloningen en de geplande airdrop.',ab3t:'🗺 Roadmap',ab3:'✅ Fase 1 — Lancering<br>✅ Fase 2 — Taken & referrals<br>✅ Fase 3 — Wereldranglijst<br>🔜 Fase 4 — Community-events<br>🔜 Fase 5 — NTR-token op TON + airdrop',ab4t:'💎 Onze visie',ab4:'We bouwen NeuronX tot een echte community-token op TON. Hoe groter de community, hoe groter NeuronX — vroege spelers staan altijd vooraan. 🔥',ab5t:'🌐 Officiële links',tNoEnergy:'Niet genoeg energie! Even wachten ⚡',tNoNTR:'Niet genoeg NTR!',tUpgraded:'geüpgraded! 🎉',tEnergyFull:'Energie is al vol!',tRecharged:'Energie volledig opgeladen! ⚡',tAdSkip:'Advertentie overgeslagen — geen beloning',tCopied:'Link gekopieerd! 📋',tNotJoined:'Je bent nog geen lid!',tVerifyFail:'Verificatie mislukt — probeer opnieuw',tNetErr:'Netwerkfout — probeer opnieuw',tWelcome:'Welkom',tDailyReset:'Dagelijkse reset! Upgrades terug naar 1 🌅',tEnterName:'Voer een naam in',chooseName:'Kies je naam',savePlay:'Opslaan & spelen',namePh:'Jouw naam...',shareText:'🪙 Speel NeuronX met mij — tik en verdien NTR!',openTg:'Open het spel in Telegram!'},
+  sv:{tabGame:'Spel',tabTasks:'Uppdrag',tabRank:'Topplista',tabAbout:'Om',balance:'Ditt saldo',progress:'Nivåframsteg',maxLevel:'Maxnivå!',level:'Nivå',hint:'Tryck på myntet och tjäna NTR',multitap:'Multitap',energyLimit:'Energigräns',refill:'Ladda energi',fullRecharge:'Full laddning',watchAd:'📺 Titta på annons',resetNote:'Uppgraderingar nollställs var 24:e timme · Nollställs om',tasksTitle:'📋 Uppdrag — Tjäna NTR',taskChannel:'📢 Gå med i kanalen',taskGroup:'💬 Gå med i gruppen',taskInsta:'📸 Följ oss på Instagram',join:'Gå med',follow:'Följ',check:'Kontrollera ✓',done:'✅ Klart',inviteTitle:'👥 Bjud in vänner',invited:'Inbjudna vänner',earned:'Intjänade NTR',share:'📤 Dela länk',copy:'📋 Kopiera länk',refHint:'+300 NTR per vän — obegränsat! 🚀',rankTitle:'🏆 Topplista',yourRank:'Din placering',totalPlayers:'Totalt spelare',loading:'Laddar…',noPlayers:'Inga spelare än',rankFail:'Kunde inte ladda — försök igen',rankTg:'Öppna spelet i Telegram för att se topplistan',aboutTitle:'ℹ️ Om NeuronX',ab1t:'⚛️ Vad är NeuronX?',ab1:'NeuronX (NTR) är ett tap-to-earn-spel på Telegram. Varje tryck utvinner NTR — saldo, uppgraderingar och rang sparas för alltid.',ab2t:'🚀 Varför nu?',ab2:'Tidiga miners vinner alltid mest. Ju tidigare du börjar, desto mer NTR samlar du — och säkrar din plats för framtida belöningar och den planerade airdroppen.',ab3t:'🗺 Färdplan',ab3:'✅ Fas 1 — Lansering<br>✅ Fas 2 — Uppdrag & referrals<br>✅ Fas 3 — Global topplista<br>🔜 Fas 4 — Community-event<br>🔜 Fas 5 — NTR-token på TON + airdrop',ab4t:'💎 Vår vision',ab4:'Vi bygger NeuronX till en riktig community-token på TON. Ju större community, desto större NeuronX — tidiga spelare står alltid först. 🔥',ab5t:'🌐 Officiella länkar',tNoEnergy:'Inte tillräckligt med energi! Vänta ⚡',tNoNTR:'Inte tillräckligt med NTR!',tUpgraded:'uppgraderad! 🎉',tEnergyFull:'Energin är redan full!',tRecharged:'Energin fulladdad! ⚡',tAdSkip:'Annons hoppades över — ingen belöning',tCopied:'Länk kopierad! 📋',tNotJoined:'Du har inte gått med än!',tVerifyFail:'Kunde inte verifiera — försök igen',tNetErr:'Nätverksfel — försök igen',tWelcome:'Välkommen',tDailyReset:'Daglig nollställning! Uppgraderingar på nivå 1 🌅',tEnterName:'Ange ett namn',chooseName:'Välj ditt namn',savePlay:'Spara & spela',namePh:'Ditt namn...',shareText:'🪙 Spela NeuronX med mig — tryck och tjäna NTR!',openTg:'Öppna spelet i Telegram!'},
+  zh:{tabGame:'游戏',tabTasks:'任务',tabRank:'排行榜',tabAbout:'关于',balance:'你的余额',progress:'等级进度',maxLevel:'已达最高等级！',level:'等级',hint:'点击金币赚取 NTR',multitap:'多重点击',energyLimit:'能量上限',refill:'补充能量',fullRecharge:'完全充能',watchAd:'📺 观看广告',resetNote:'升级每24小时重置 · 重置倒计时',tasksTitle:'📋 任务 — 赚取 NTR',taskChannel:'📢 加入频道',taskGroup:'💬 加入群组',taskInsta:'📸 关注 Instagram',join:'加入',follow:'关注',check:'验证 ✓',done:'✅ 已完成',inviteTitle:'👥 邀请好友',invited:'已邀请好友',earned:'已赚取 NTR',share:'📤 分享邀请链接',copy:'📋 复制链接',refHint:'每邀请一位好友 +300 NTR — 无上限！🚀',rankTitle:'🏆 排行榜',yourRank:'你的排名',totalPlayers:'玩家总数',loading:'加载中…',noPlayers:'暂无玩家',rankFail:'加载失败 — 请重试',rankTg:'请在 Telegram 中打开游戏查看排行榜',aboutTitle:'ℹ️ 关于 NeuronX',ab1t:'⚛️ NeuronX 是什么？',ab1:'NeuronX (NTR) 是 Telegram 上的点击赚币游戏。每次点击都在挖 NTR — 你的余额、升级和排名将永久保存。',ab2t:'🚀 为什么现在开始？',ab2:'早期矿工总是收获最多。越早开始，积累的 NTR 越多 — 也为未来奖励和计划中的空投锁定你的位置。',ab3t:'🗺 路线图',ab3:'✅ 阶段1 — 游戏上线<br>✅ 阶段2 — 任务与邀请<br>✅ 阶段3 — 全球排行榜<br>🔜 阶段4 — 社区活动<br>🔜 阶段5 — NTR 代币上线 TON + 空投',ab4t:'💎 我们的愿景',ab4:'我们致力于让 NeuronX 成为 TON 上真正的社区代币。社区越大，NeuronX 越强 — 早期玩家永远排在最前。🔥',ab5t:'🌐 官方链接',tNoEnergy:'能量不足！稍等片刻 ⚡',tNoNTR:'NTR 不足！',tUpgraded:'升级成功！🎉',tEnergyFull:'能量已满！',tRecharged:'能量已充满！⚡',tAdSkip:'广告被跳过 — 无奖励',tCopied:'链接已复制！📋',tNotJoined:'你还没有加入！',tVerifyFail:'验证失败 — 请重试',tNetErr:'网络错误 — 请重试',tWelcome:'欢迎',tDailyReset:'每日重置！升级回到1级 🌅',tEnterName:'请输入名字',chooseName:'选择你的用户名',savePlay:'保存并开始',namePh:'你的名字...',shareText:'🪙 和我一起玩 NeuronX — 点击赚 NTR！',openTg:'请在 Telegram 中打开游戏！'}
+  };
+  let LANG = 'en';
+  const t = k => (I18N[LANG] && I18N[LANG][k]) || I18N.en[k] || k;
+
+  function applyLang() {
+    document.documentElement.lang = LANG;
+    document.documentElement.dir = LANG === 'fa' ? 'rtl' : 'ltr';
+    const icons = { Game: '🎮', Tasks: '📋', Rank: '🏆', About: 'ℹ️' };
+    document.querySelectorAll('.tab').forEach(el => {
+      el.innerHTML = '<span class="ic">' + icons[el.dataset.tab] + '</span>' + t('tab' + el.dataset.tab);
+    });
+    const set = (id, key) => { const el = $(id); if (el) el.textContent = t(key); };
+    const seth = (id, key) => { const el = $(id); if (el) el.innerHTML = t(key); };
+    set('lblBalance','balance'); set('lblProgress','progress'); set('lblLevelChip','level');
+    set('lblHint','hint'); set('lblMultitap','multitap'); set('lblEnergyLimit','energyLimit');
+    set('lblRefill','refill'); set('lblFullRecharge','fullRecharge'); set('lblRefillCost','watchAd');
+    set('lblReset','resetNote');
+    set('lblTasksTitle','tasksTitle'); set('lblTaskChannel','taskChannel');
+    set('lblTaskGroup','taskGroup'); set('lblTaskInsta','taskInsta');
+    set('lblInviteTitle','inviteTitle'); set('lblInvited','invited'); set('lblEarned','earned');
+    set('shareInvite','share'); set('copyInvite','copy'); set('lblRefHint','refHint');
+    set('lblRankTitle','rankTitle'); set('lblYourRank','yourRank'); set('lblTotalPlayers','totalPlayers');
+    set('lblAboutTitle','aboutTitle');
+    seth('ab1t','ab1t'); seth('ab1b','ab1'); seth('ab2t','ab2t'); seth('ab2b','ab2');
+    seth('ab3t','ab3t'); seth('ab3b','ab3'); seth('ab4t','ab4t'); seth('ab4b','ab4'); seth('ab5t','ab5t');
+    set('lblChooseName','chooseName'); set('nameSave','savePlay');
+    $('nameInput').placeholder = t('namePh');
+    document.querySelectorAll('.lang-row').forEach(r => r.classList.toggle('active', r.dataset.lang === LANG));
+    render();
+    if (typeof renderTasks === 'function') { try { renderTasks(); } catch (e) {} }
+  }
+
+  function setLang(l, save) {
+    LANG = I18N[l] ? l : 'en';
+    applyLang();
+    if (save) { dirty = true; scheduleSave(); }
+  }
+
+  // language picker
+  $('langList').innerHTML = LANGS.map(([code, name]) =>
+    '<div class="lang-row" data-lang="' + code + '">' + name + '</div>').join('');
+  document.querySelectorAll('.lang-row').forEach(r => {
+    r.addEventListener('click', () => {
+      setLang(r.dataset.lang, true);
+      $('langSheet').classList.remove('show');
+    });
+  });
+  $('langBtn').addEventListener('click', () => $('langSheet').classList.add('show'));
+  $('langSheet').addEventListener('click', e => {
+    if (e.target === $('langSheet')) $('langSheet').classList.remove('show');
+  });
+
+  // ---------- Tabs ----------
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('show'));
+      $('page' + t.dataset.tab).classList.add('show');
+      if (t.dataset.tab === 'Rank') loadLeaderboard();
+      if (t.dataset.tab === 'Tasks') { renderTasks(); renderFriends(); }
+    });
+  });
+
+  // ---------- Tasks ----------
+  const SOCIAL = {
+    channel:   { url: 'https://t.me/neuronXcoin',                reward: 300 },
+    group:     { url: 'https://t.me/neuronX_coin',               reward: 400 },
+    instagram: { url: 'https://www.instagram.com/neuronX_coin',  reward: 500 },
+  };
+  const BOT_LINK = 'https://t.me/NeuronXminerbot/Play';
+  let tasksDone = { channel: false, group: false, instagram: false };
+  let refCount = 0, refEarned = 0;
+  const taskClicked = { channel: false, group: false, instagram: false };
+
+  function renderTasks() {
+    const btns = { channel: 'taskChannel', group: 'taskGroup', instagram: 'taskInstagram' };
+    for (const k in btns) {
+      const b = $(btns[k]);
+      if (tasksDone[k]) { b.textContent = t('done'); b.classList.add('done'); b.disabled = true; }
+      else if (taskClicked[k]) { b.textContent = t('check'); }
+      else { b.textContent = k === 'instagram' ? t('follow') : t('join'); }
+    }
+  }
+
+  async function handleTask(k) {
+    if (tasksDone[k]) return;
+    if (!taskClicked[k]) {
+      taskClicked[k] = true;
+      const u = SOCIAL[k].url;
+      if (tg && k !== 'instagram' && tg.openTelegramLink) tg.openTelegramLink(u);
+      else if (tg && tg.openLink) tg.openLink(u);
+      else window.open(u, '_blank');
+      renderTasks();
+      return;
+    }
+    if (!initData) { toast(t('openTg')); return; }
+    try {
+      const data = await api('/task/verify', { task: k });
+      if (data.done) {
+        tasksDone[k] = true;
+        if (typeof data.balance === 'number') state.balance = data.balance;
+        if (typeof data.totalEarned === 'number') state.totalEarned = data.totalEarned;
+        toast('+' + SOCIAL[k].reward + ' NTR! 🎉');
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        renderTasks(); render();
+      } else if (data.reason === 'not_member') {
+        toast(t('tNotJoined'));
+      } else {
+        toast(t('tVerifyFail'));
+      }
+    } catch (e) { toast(t('tNetErr')); }
+  }
+  $('taskChannel').addEventListener('click', () => handleTask('channel'));
+  $('taskGroup').addEventListener('click', () => handleTask('group'));
+  $('taskInstagram').addEventListener('click', () => handleTask('instagram'));
+
+  // ---------- Friends / referral ----------
+  function myId() {
+    return tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
+  }
+  function renderFriends() {
+    const id = myId();
+    $('inviteLink').textContent = id ? BOT_LINK + '?startapp=' + id : BOT_LINK;
+    $('refCount').textContent = fmt(refCount);
+    $('refEarned').textContent = fmt(refEarned);
+  }
+  $('copyInvite').addEventListener('click', () => {
+    const t = $('inviteLink').textContent;
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(() => toast(t('tCopied')), () => toast(t));
+    else toast(t);
+  });
+  $('shareInvite').addEventListener('click', () => {
+    const link = $('inviteLink').textContent;
+    const share = 'https://t.me/share/url?url=' + encodeURIComponent(link) +
+      '&text=' + encodeURIComponent(t('shareText'));
+    if (tg && tg.openTelegramLink) tg.openTelegramLink(share);
+    else window.open(share, '_blank');
+  });
+
+  // ---------- Leaderboard ----------
+  const escapeHtml = s => String(s).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  let rankLoading = false;
+  async function loadLeaderboard() {
+    if (!initData) { $('rankList').innerHTML = '<div class="hint-small">' + t('rankTg') + '</div>'; return; }
+    if (rankLoading) return;
+    rankLoading = true;
+    $('rankList').innerHTML = '<div class="hint-small">' + t('loading') + '</div>';
+    try {
+      const data = await api('/leaderboard');
+      $('myRank').textContent = data.rank ? '#' + fmt(data.rank) : '—';
+      $('totalPlayers').textContent = fmt(data.total);
+      const me = String(myId() || '');
+      $('rankList').innerHTML = data.top.map((p, i) =>
+        '<div class="rank-row' + (String(p.id) === me ? ' me' : '') + '">' +
+        '<span class="rk">' + (i + 1) + '</span>' +
+        '<span class="nm">' + escapeHtml(p.name) + '</span>' +
+        '<span class="sc">' + fmt(p.total) + '</span></div>'
+      ).join('') || '<div class="hint-small">' + t('noPlayers') + '</div>';
+    } catch (e) {
+      $('rankList').innerHTML = '<div class="hint-small">' + t('rankFail') + '</div>';
+    }
+    rankLoading = false;
+  }
+
+  // default language: saved > Telegram language > English
+  const tgLangCode = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.language_code;
+  LANG = I18N[tgLangCode] ? tgLangCode : 'en';
+  applyLang();
   loadFromServer();
 
   render();
