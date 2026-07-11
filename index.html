@@ -354,13 +354,15 @@
 
   /* ---------- Language ---------- */
   .lang-btn {
-    width: 36px; height: 36px;
+    height: 36px; min-width: 36px;
+    padding: 0 10px;
     border-radius: 12px;
     background: var(--bg-card);
     border: 1px solid #2e2657;
-    display: grid; place-items: center;
-    cursor: pointer; font-size: 16px;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    cursor: pointer; font-size: 15px;
   }
+  .lang-btn b { font-size: 12px; font-weight: 900; color: var(--gold); letter-spacing: .5px; }
   .lang-row {
     padding: 10px;
     border: 1px solid #2e2657;
@@ -1322,6 +1324,7 @@
   const t = k => (I18N[LANG] && I18N[LANG][k]) || I18N.en[k] || k;
 
   function applyLang() {
+    $('langBtn').innerHTML = '\ud83c\udf10 <b>' + LANG.toUpperCase() + '</b>';
     document.documentElement.lang = LANG;
     document.documentElement.dir = LANG === 'fa' ? 'rtl' : 'ltr';
     const icons = { Game: '🎮', Tasks: '📋', Rank: '🏆', Mini: '🕹', NFT: '🖼', Wallet: '👛', About: 'ℹ️' };
@@ -1501,7 +1504,7 @@
         html += '<div class="rank-row me">' +
           '<span class="rk">' + (data.rank ? fmt(data.rank) : '—') + '</span>' +
           '<span class="nm">' + escapeHtml($('playerName').textContent) + '</span>' +
-          '<span class="sc">' + fmt(state.totalEarned) + '</span></div>';
+          '<span class="sc">' + fmt(state.balance) + '</span></div>';
       }
       $('rankList').innerHTML = html || '<div class="hint-small">' + t('noPlayers') + '</div>';
     } catch (e) {
