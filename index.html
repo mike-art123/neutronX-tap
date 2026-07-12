@@ -460,11 +460,8 @@
   .balance .amount .num {
     font-family: 'Orbitron', 'Vazirmatn', sans-serif;
     font-size: 44px; letter-spacing: 1px;
-    background: linear-gradient(100deg, #8a6100 0%, var(--gold) 25%, #fff6d8 50%, var(--gold) 75%, #8a6100 100%);
-    background-size: 200% 100%;
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-    animation: shine 5s linear infinite;
-    filter: drop-shadow(0 0 22px rgba(255, 209, 77, .35));
+    color: var(--gold);
+    text-shadow: 0 0 24px rgba(255, 201, 51, .5), 0 2px 0 rgba(120, 80, 0, .8);
   }
   @keyframes shine { to { background-position: -200% 0; } }
   .ticker { color: var(--gold); opacity: .85; font-family: 'Orbitron', sans-serif; font-size: 13px; }
@@ -1281,15 +1278,30 @@
       render();
     } catch (e) {
       console.error('Load failed:', e);
+      setTimeout(loadFromServer, 4000); // keep retrying until the real balance arrives
     }
   }
 
-  async function saveToServer() {
+  let lastSaveAt = 0;
+  async function saveToServer(force) {
     if (!initData || !serverReady || !dirty) return;
+    const nowMs = Date.now();
+    if (!force && nowMs - lastSaveAt < 8000) {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => saveToServer(false), 8000 - (nowMs - lastSaveAt));
+      return; // gentle on the server: at most one save every 8s
+    }
+    lastSaveAt = nowMs;
     dirty = false;
     try {
       const data = await api('/save');
       if (data.resetAt) resetAt = data.resetAt;
+      if (data.stale && data.state) {
+        // server had newer truth (e.g. prize credited) — adopt it
+        Object.assign(state, data.state);
+        state.energy = Math.min(state.energy, maxEnergy());
+        render();
+      }
     } catch (e) {
       dirty = true; // retry on the next cycle
     }
@@ -1303,7 +1315,7 @@
 
   setInterval(saveToServer, 30000); // backup save loop
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') saveToServer();
+    if (document.visibilityState === 'hidden') saveToServer(true);
   });
 
   // ---------- Languages (i18n) ----------
