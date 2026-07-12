@@ -385,17 +385,42 @@
   .dc-cell.ready { border-color: var(--gold); box-shadow: 0 0 12px rgba(255, 201, 51, .35); cursor: pointer; animation: dcPulse 1.2s infinite; }
   @keyframes dcPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
   #fireCoin {
-    position: fixed; top: 30%; left: 0; width: 54px; height: 54px;
+    position: fixed; top: 30%; left: 0; width: 66px; height: 66px;
     z-index: 900; display: none; cursor: pointer;
-    border-radius: 50%;
-    background: radial-gradient(circle at 32% 30%, #fff6d8, #ffc933 45%, #a86e00 100%);
-    border: 2px solid #8a5c00;
-    box-shadow: 0 0 18px 6px rgba(255, 120, 0, .65), 0 0 40px 14px rgba(255, 60, 0, .25);
-    font-size: 26px; text-align: center; line-height: 50px;
-    transform: translateX(-80px);
+    transform: translateX(-110px);
+    filter: drop-shadow(0 0 12px rgba(255, 140, 0, .9)) drop-shadow(0 0 30px rgba(255, 80, 0, .45));
   }
-  #fireCoin::before { content: '🔥'; position: absolute; left: -20px; top: 8px; font-size: 22px; filter: blur(.5px); opacity: .9; }
   #fireCoin.fly { transition: transform 7s linear; }
+  .fc-trail {
+    position: absolute; left: -84px; top: 16px; width: 94px; height: 34px;
+    background: linear-gradient(to left, rgba(255, 224, 130, .95), rgba(255, 130, 0, .8) 30%, rgba(255, 40, 0, .4) 65%, transparent);
+    border-radius: 50% 40% 40% 50%;
+    filter: blur(3px);
+    animation: fcFlick .22s infinite alternate;
+  }
+  .fc-trail::after {
+    content: ''; position: absolute; right: 0; top: 8px; width: 62px; height: 17px;
+    background: linear-gradient(to left, #fff8d8, rgba(255, 190, 60, .95) 40%, transparent);
+    border-radius: 50%;
+    filter: blur(1.5px);
+    animation: fcFlick .15s infinite alternate-reverse;
+  }
+  @keyframes fcFlick {
+    from { transform: scaleX(1) translateY(0); opacity: 1; }
+    to   { transform: scaleX(.8) translateY(-2px); opacity: .75; }
+  }
+  .fc-coin { width: 100%; height: 100%; animation: fcRock 1s ease-in-out infinite; }
+  @keyframes fcRock {
+    0%, 100% { transform: rotate(-9deg) scale(1); }
+    50%      { transform: rotate(9deg) scale(1.08); }
+  }
+  .fc-spark {
+    position: absolute; width: 5px; height: 5px; border-radius: 50%;
+    background: #ffd54a; left: -14px; top: 10px;
+    box-shadow: -18px 14px 0 -1px rgba(255, 160, 30, .9), -34px 4px 0 -2px rgba(255, 100, 0, .8), -26px 26px 0 -2px rgba(255, 200, 90, .8);
+    animation: fcSpark .4s infinite alternate;
+  }
+  @keyframes fcSpark { from { opacity: 1; } to { opacity: .3; transform: translateX(-6px); } }
 
   /* ---------- Hourly gift ---------- */
   .gift { position: absolute; top: 4px; right: 4px; z-index: 6; text-align: center; cursor: pointer; }
@@ -948,7 +973,27 @@
   </div>
 </div>
 
-<div id="fireCoin">⚛️</div>
+<div id="fireCoin">
+  <div class="fc-trail"></div>
+  <div class="fc-spark"></div>
+  <svg class="fc-coin" viewBox="0 0 100 100">
+    <defs>
+      <radialGradient id="fcg" cx="35%" cy="30%" r="80%">
+        <stop offset="0%" stop-color="#fff6d8"/>
+        <stop offset="45%" stop-color="#ffc933"/>
+        <stop offset="100%" stop-color="#a86e00"/>
+      </radialGradient>
+    </defs>
+    <circle cx="50" cy="50" r="47" fill="url(#fcg)" stroke="#8a5c00" stroke-width="4"/>
+    <circle cx="50" cy="50" r="38" fill="none" stroke="#8a5c00" stroke-width="2" stroke-dasharray="5 6" opacity=".5"/>
+    <g stroke="#7a5400" stroke-width="4.5" fill="none">
+      <ellipse cx="50" cy="50" rx="26" ry="10"/>
+      <ellipse cx="50" cy="50" rx="26" ry="10" transform="rotate(60 50 50)"/>
+      <ellipse cx="50" cy="50" rx="26" ry="10" transform="rotate(120 50 50)"/>
+    </g>
+    <circle cx="50" cy="50" r="7" fill="#7a5400"/>
+  </svg>
+</div>
 
 <div class="name-overlay" id="dailyCal">
   <div class="name-box">
@@ -1003,7 +1048,7 @@
 
   const tapPower  = () => state.tapLevel * 0.1; // 0.1 NRX per tap per level
   const maxEnergy = () => 50 + (state.energyLevel - 1) * 25;
-  const regenRate = () => 0.25; // 15 energy per minute
+  const regenRate = () => 20 / 60; // 20 energy per minute
 
   // gentle price curve: each level costs only ~20% more
   const upgCost = {
@@ -1597,6 +1642,8 @@
   var fireNext = 0;
   var fireBusy = false;
 
+  var fireRaf = 0;
+
   function spawnFireCoin() {
     try {
       if (fireBusy || document.visibilityState === 'hidden') {
@@ -1605,26 +1652,37 @@
       }
       fireBusy = true;
       const el = $('fireCoin');
-      el.style.top = (15 + Math.random() * 45) + '%';
+      const dir = Math.random() < 0.5 ? 1 : -1;      // sometimes flies the other way
+      const DUR = 8500;
+      const W = window.innerWidth;
+      const startX = dir === 1 ? -130 : W + 130;
+      const endX = dir === 1 ? W + 130 : -130;
+      const phase = Math.random() * Math.PI * 2;
+      el.style.top = (18 + Math.random() * 40) + '%';
       el.style.display = 'block';
-      el.classList.remove('fly');
-      el.style.transform = 'translateX(-80px)';
-      void el.offsetWidth; // reflow, then fly across
-      requestAnimationFrame(() => {
-        el.classList.add('fly');
-        el.style.transform = 'translateX(' + (window.innerWidth + 120) + 'px)';
-      });
-      const missT = setTimeout(() => { hideFire(); schedule(); }, 7300);
+      el.style.transform = 'translate(' + startX + 'px,0px) scaleX(' + dir + ')';
+      const t0 = performance.now();
 
       function hideFire() {
+        cancelAnimationFrame(fireRaf);
         el.style.display = 'none';
-        el.classList.remove('fly');
-        el.style.transform = 'translateX(-80px)';
       }
       function schedule() { fireBusy = false; setTimeout(spawnFireCoin, FIRE_MS); }
 
+      function step(now) {
+        const p = (now - t0) / DUR;
+        if (p >= 1) { hideFire(); schedule(); return; }
+        // zips in, slows down teasingly mid-screen, zips out
+        const f = 0.5 + 4 * Math.pow(p - 0.5, 3);
+        const x = startX + (endX - startX) * f;
+        // gentle floating wave, like a drifting ember
+        const y = Math.sin(p * Math.PI * 4 + phase) * 26;
+        el.style.transform = 'translate(' + x + 'px,' + y + 'px) scaleX(' + dir + ')';
+        fireRaf = requestAnimationFrame(step);
+      }
+      fireRaf = requestAnimationFrame(step);
+
       el.onclick = () => {
-        clearTimeout(missT);
         hideFire();
         showAd(() => {
           const reward = Math.floor(10 + Math.random() * 41); // 10..50
