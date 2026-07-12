@@ -50,7 +50,8 @@
   .avatar {
     width: 26px; height: 26px; border-radius: 8px;
     background: linear-gradient(135deg, var(--violet), #5a3fd6);
-    display: grid; place-items: center; font-size: 13px;
+    display: grid; place-items: center; font-size: 15px;
+    box-shadow: 0 0 8px rgba(139, 108, 255, .45);
   }
   .level-chip {
     background: var(--bg-card);
@@ -375,15 +376,50 @@
   }
   .lang-row.active { border-color: var(--gold); color: var(--gold); }
   .w-line { font-size: 13px; line-height: 1.65; margin-bottom: 10px; }
-  .dc-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 14px 0 6px; }
-  .dc-cell { position: relative; background: #191238; border: 1px solid #2e2657; border-radius: 10px; padding: 7px 2px 6px; text-align: center; }
-  .dc-cell .d { font-size: 10px; color: var(--muted); }
-  .dc-cell .r { font-size: 12px; font-weight: 800; color: var(--gold); font-family: 'Orbitron', 'Vazirmatn', sans-serif; }
-  .dc-cell.done { border-color: #22c55e66; }
-  .dc-cell.done .ok { position: absolute; inset: 0; display: grid; place-items: center; font-size: 16px; color: #22c55e; background: rgba(10, 25, 12, .55); border-radius: 10px; }
-  .dc-cell.locked { opacity: .4; }
-  .dc-cell.ready { border-color: var(--gold); box-shadow: 0 0 12px rgba(255, 201, 51, .35); cursor: pointer; animation: dcPulse 1.2s infinite; }
-  @keyframes dcPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+  .dc-sub { text-align: center; color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .dc-sub b { color: var(--gold); font-family: 'Orbitron', 'Vazirmatn', sans-serif; font-size: 17px; }
+  .dc-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin: 12px 0 6px; }
+  .dc-cell { position: relative; background: #171033; border: 1px solid #2c2454; border-radius: 12px; padding: 8px 2px 7px; text-align: center; }
+  .dc-cell .d { font-size: 8px; letter-spacing: .6px; color: var(--muted); font-weight: 700; }
+  .dc-cell .r { font-size: 13px; font-weight: 800; color: var(--gold); font-family: 'Orbitron', 'Vazirmatn', sans-serif; margin-top: 2px; }
+  .dc-cell.done { border-color: #22c55e77; background: #12201733; }
+  .dc-cell.done .r { color: #6fdf9a; }
+  .dc-cell.done .ok {
+    position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; border-radius: 50%;
+    background: #22c55e; color: #04150a; font-size: 11px; font-weight: 900;
+    display: grid; place-items: center; box-shadow: 0 0 8px rgba(34, 197, 94, .6);
+  }
+  .dc-cell.locked { opacity: .35; }
+  .dc-cell.wait { border-color: #8b6cff99; box-shadow: 0 0 10px rgba(139, 108, 255, .25) inset; }
+  .dc-cell.wait .r { color: #b9a8ff; font-size: 11px; }
+  .dc-cell.ready {
+    background: linear-gradient(160deg, #ffe082, #ffb300);
+    border-color: #fff0c0;
+    transform: scale(1.14);
+    z-index: 2;
+    box-shadow: 0 0 20px rgba(255, 190, 40, .8);
+    cursor: pointer;
+    animation: dcBounce 1s ease-in-out infinite;
+  }
+  .dc-cell.ready .d { color: #6b4a00; }
+  .dc-cell.ready .r { color: #3d2900; }
+  .dc-cell.ready .tag {
+    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    background: var(--pink); color: #fff; font-size: 8px; font-weight: 900;
+    padding: 2px 7px; border-radius: 9px; letter-spacing: .5px; white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(255, 45, 149, .5);
+  }
+  @keyframes dcBounce { 0%, 100% { transform: scale(1.14) translateY(0); } 50% { transform: scale(1.14) translateY(-3px); } }
+  .dc-cell.big { border-color: var(--pink); }
+  .dc-cell.big::after { content: '⭐'; position: absolute; top: -7px; left: -5px; font-size: 11px; }
+  .dc-cell.jackpot { opacity: 1 !important; border-color: var(--gold); animation: dcJack 2s ease-in-out infinite; }
+  .dc-cell.jackpot .d { color: #ffd75e; }
+  .dc-cell.jackpot .r { color: #ffe082; text-shadow: 0 0 8px rgba(255, 200, 60, .9); }
+  .dc-cell.jackpot::after { content: '🏆'; position: absolute; top: -8px; left: -6px; font-size: 12px; }
+  @keyframes dcJack {
+    0%, 100% { box-shadow: 0 0 10px rgba(255, 201, 51, .45); }
+    50%      { box-shadow: 0 0 22px rgba(255, 45, 149, .8); }
+  }
   #fireCoin {
     position: fixed; top: 30%; left: 0; width: 66px; height: 66px;
     z-index: 900; display: none; cursor: pointer;
@@ -771,7 +807,7 @@
 
   <div class="header">
     <div class="player">
-      <div class="avatar">👤</div>
+      <div class="avatar" id="lvlBadge">🔰</div>
       <span id="playerName">Player</span>
     </div>
     <div class="level-chip"><span id="lblLevelChip">Level</span> <b id="levelNum">1</b> · <span id="levelTitle">Rookie</span></div>
@@ -998,6 +1034,7 @@
 <div class="name-overlay" id="dailyCal">
   <div class="name-box">
     <div class="name-title" id="dcTitle">📅 Daily Challenge</div>
+    <div class="dc-sub"><b id="dcDay">1</b> / 30</div>
     <div class="dc-grid" id="dcGrid"></div>
     <button class="name-save" id="dcClose">OK</button>
   </div>
@@ -1065,6 +1102,7 @@
     { need: 500000,   title: 'Whale' },
     { need: 2000000,  title: 'Legend' },
   ];
+  const LEVEL_BADGES = ['🔰', '🧭', '⛏️', '💰', '🐬', '🐳', '👑'];
 
   // ---------- Helpers ----------
   const fmt = n => n.toLocaleString('en-US', { maximumFractionDigits: 1 });
@@ -1084,6 +1122,7 @@
     const lvl = currentLevel();
     $('levelNum').textContent = lvl + 1;
     $('levelTitle').textContent = LEVELS[lvl].title;
+    $('lvlBadge').textContent = LEVEL_BADGES[lvl] || '👑';
 
     const cur = LEVELS[lvl].need;
     const next = LEVELS[lvl + 1] ? LEVELS[lvl + 1].need : null;
@@ -1830,7 +1869,7 @@
   });
 
   // ---------- 30-day daily challenge (day 1 = 20, +20 each day) ----------
-  const DAILY_STEP = 2;
+  const dailyReward = d => d >= 30 ? 1000 : 10 + (d - 1) * 5;
   const DAILY_MAX_DAY = 30;
   const DAY_MS = 24 * 60 * 60 * 1000;
   let dailyDay = 1, dailyNext = 0;
@@ -1858,7 +1897,7 @@
   function claimDaily() {
     const now = Date.now();
     if (now < dailyNext) { toast(t('giftWait')); return; }
-    const amount = dailyDay * DAILY_STEP;
+    const amount = dailyReward(dailyDay);
     state.balance = Math.round((state.balance + amount) * 10) / 10;
     state.totalEarned = Math.round((state.totalEarned + amount) * 10) / 10;
     coinRain();
@@ -1875,22 +1914,48 @@
     const grid = $('dcGrid');
     grid.innerHTML = '';
     const now = Date.now();
+    $('dcDay').textContent = dailyDay;
     for (let d = 1; d <= DAILY_MAX_DAY; d++) {
       const cell = document.createElement('div');
       cell.className = 'dc-cell';
       const claimable = d === dailyDay && now >= dailyNext;
-      if (d < dailyDay) cell.classList.add('done');
-      else if (claimable) cell.classList.add('ready');
-      else cell.classList.add('locked');
-      cell.innerHTML = '<div class="d">' + d + '</div><div class="r">' + (d * DAILY_STEP) + '</div>' +
-        (d < dailyDay ? '<div class="ok">✓</div>' : '');
+      const waiting = d === dailyDay && now < dailyNext;
+      let inner = '<div class="d">DAY ' + d + '</div>';
+      if (claimable) {
+        cell.classList.add('ready');
+        inner += '<div class="r">+' + dailyReward(d) + '</div><div class="tag">🎁 TAP!</div>';
+      } else if (waiting) {
+        cell.classList.add('wait');
+        const left = dailyNext - now;
+        const hh = Math.floor(left / 3600000);
+        const mm = Math.floor((left % 3600000) / 60000);
+        inner += '<div class="r">⏳ ' + pad(hh) + ':' + pad(mm) + '</div>';
+      } else if (d < dailyDay) {
+        cell.classList.add('done');
+        inner += '<div class="r">+' + dailyReward(d) + '</div><div class="ok">✓</div>';
+      } else {
+        cell.classList.add('locked');
+        inner += '<div class="r">+' + dailyReward(d) + '</div>';
+      }
+      if (d % 10 === 0) cell.classList.add('big');
+      if (d === 30) cell.classList.add('jackpot');
+      cell.innerHTML = inner;
       if (claimable) cell.addEventListener('click', () => { claimDaily(); renderDailyCal(); });
       grid.appendChild(cell);
     }
   }
 
-  $('dailyBtn').addEventListener('click', () => { renderDailyCal(); $('dailyCal').classList.add('show'); });
-  $('dcClose').addEventListener('click', () => $('dailyCal').classList.remove('show'));
+  let dcTimer = 0;
+  $('dailyBtn').addEventListener('click', () => {
+    renderDailyCal();
+    $('dailyCal').classList.add('show');
+    clearInterval(dcTimer);
+    dcTimer = setInterval(renderDailyCal, 30000); // keep the countdown fresh
+  });
+  $('dcClose').addEventListener('click', () => {
+    $('dailyCal').classList.remove('show');
+    clearInterval(dcTimer);
+  });
 
   // ---------- Countdown to monthly prize payout (1st of month, UTC) ----------
   function nextPrizeTime() {
