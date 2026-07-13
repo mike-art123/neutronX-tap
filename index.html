@@ -34,7 +34,7 @@
     height: 100dvh;
     display: flex;
     flex-direction: column;
-    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+    padding: calc(14px + var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)) 16px calc(14px + env(safe-area-inset-bottom) + var(--tg-safe-area-inset-bottom, 0px));
   }
 
   /* ---------- Header ---------- */
@@ -457,6 +457,98 @@
     animation: fcSpark .4s infinite alternate;
   }
   @keyframes fcSpark { from { opacity: 1; } to { opacity: .3; transform: translateX(-6px); } }
+  .arcade-head { text-align: center; color: var(--muted); font-size: 12px; margin: 2px 0 10px; }
+  .arcade-head b { color: var(--gold); }
+  .arcade-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .arc-card {
+    position: relative; aspect-ratio: 1; border-radius: 16px; overflow: hidden; cursor: pointer;
+    background: radial-gradient(circle at 30% 18%, var(--g1), #110b2a 82%);
+    border: 1px solid #35296b; box-shadow: inset 0 0 24px rgba(0, 0, 0, .5);
+  }
+  .arc-card:active { transform: scale(.95); }
+  .pv { position: absolute; inset: 0 0 18px 0; }
+  .pv i, .pv b { position: absolute; display: block; }
+  /* snake: 3 segments chase around a square, food pulses */
+  .sn { width: 9px; height: 9px; border-radius: 3px; background: #37e6a0; box-shadow: 0 0 6px #37e6a0; animation: snMove 2.4s steps(1) infinite; }
+  .n2 { animation-delay: -.3s; opacity: .85; }
+  .n3 { animation-delay: -.6s; opacity: .65; }
+  @keyframes snMove {
+    0%   { left: 26%; top: 26%; } 12% { left: 46%; top: 26%; } 25% { left: 66%; top: 26%; }
+    37%  { left: 66%; top: 46%; } 50% { left: 66%; top: 66%; }
+    62%  { left: 46%; top: 66%; } 75% { left: 26%; top: 66%; }
+    87%  { left: 26%; top: 46%; } 100% { left: 26%; top: 26%; }
+  }
+  .fd { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); left: 46%; top: 46%; box-shadow: 0 0 8px var(--gold); animation: fdPulse 1s infinite; }
+  @keyframes fdPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.45); } }
+  /* flappy: pillars slide left, bird bobs */
+  .fp { width: 10px; background: #8b6cff; border-radius: 3px; animation: fpSlide 1.8s linear infinite; }
+  .p1 { top: 0; height: 34%; }
+  .p2 { bottom: 22%; height: 30%; animation-delay: -.9s; }
+  @keyframes fpSlide { from { left: 105%; } to { left: -14%; } }
+  .bird { width: 12px; height: 12px; border-radius: 50%; background: var(--gold); left: 30%; box-shadow: 0 0 8px var(--gold); animation: birdBob 1s ease-in-out infinite; }
+  @keyframes birdBob { 0%, 100% { top: 34%; } 50% { top: 52%; } }
+  /* breaker: bricks blink, ball bounces, paddle tracks */
+  .bk { width: 18%; height: 7px; border-radius: 3px; top: 14%; background: var(--pink); }
+  .b1 { left: 18%; } .b2 { left: 41%; background: var(--gold); } .b3 { left: 64%; background: var(--cyan, #00e5ff); }
+  .bb { width: 9px; height: 9px; border-radius: 50%; background: #fff; box-shadow: 0 0 7px #fff; animation: bbB 1.4s ease-in-out infinite; }
+  @keyframes bbB { 0%, 100% { left: 28%; top: 66%; } 50% { left: 62%; top: 24%; } }
+  .pd2 { width: 26%; height: 7px; border-radius: 4px; background: var(--gold); bottom: 14%; animation: pdSlide 1.4s ease-in-out infinite; }
+  @keyframes pdSlide { 0%, 100% { left: 18%; } 50% { left: 55%; } }
+  /* catcher: atoms rain, paddle slides */
+  .drop { width: 10px; height: 10px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 7px var(--gold); animation: dropFall 1.3s linear infinite; left: 30%; }
+  .d2 { left: 62%; background: #ff3b5c; box-shadow: 0 0 7px #ff3b5c; animation-delay: -.6s; }
+  @keyframes dropFall { from { top: -12%; } to { top: 92%; } }
+  .pad { width: 34%; height: 8px; border-radius: 5px; background: var(--gold); bottom: 12%; animation: pdSlide 1.6s ease-in-out infinite; }
+  .arc-name { position: absolute; bottom: 16px; left: 0; right: 0; text-align: center; font-size: 9.5px; font-weight: 800; color: #efeaff; }
+  .arc-pc { position: absolute; bottom: 4px; left: 0; right: 0; display: flex; align-items: center; justify-content: center; gap: 3px; font-size: 8px; font-weight: 700; color: #b9b0d8; }
+  .arc-pc i { width: 5px; height: 5px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 5px #22c55e; animation: liveBlink 1.6s infinite; }
+  .live-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 7px #22c55e; margin-right: 5px; animation: liveBlink 1.6s infinite; }
+  @keyframes liveBlink { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+  #arcOverlay { position: fixed; inset: 0; z-index: 960; background: #08051a; display: none; }
+  #arcOverlay.show { display: block; }
+  #arcCanvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
+  .arc-hud { position: absolute; top: calc(env(safe-area-inset-top, 0px) + var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px) + 10px); left: 14px; right: 14px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; }
+  .arc-hud b { font-family: 'Orbitron', 'Vazirmatn', sans-serif; font-size: 26px; color: var(--gold); text-shadow: 0 0 12px rgba(255, 201, 51, .5); }
+  #arcClose { pointer-events: auto; width: 34px; height: 34px; border-radius: 12px; border: 1px solid #3a2f70; background: #1c1440; color: #cfc6f2; font-size: 15px; }
+  #arcDim { position: absolute; inset: 0; background: rgba(6, 4, 16, .8); display: none; z-index: 1; }
+  #arcDim.show { display: block; }
+  #arcPanel {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: 82%; max-width: 330px;
+    background: linear-gradient(165deg, #241b52, #130d31);
+    border-radius: 24px; padding: 24px 20px 16px; text-align: center; display: none; z-index: 2;
+    box-shadow: 0 0 0 1px #4a3a8f, 0 0 36px rgba(139, 108, 255, .35), 0 18px 44px rgba(0, 0, 0, .65);
+  }
+  #arcPanel.show { display: block; animation: arcPop .28s cubic-bezier(.2, 1.4, .4, 1); }
+  @keyframes arcPop { from { transform: translate(-50%, -46%) scale(.85); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+  .arc-pt { font-size: 30px; }
+  .arc-ps { margin-top: 8px; font-family: 'Orbitron', 'Vazirmatn', sans-serif; font-size: 13px; color: var(--muted); line-height: 1.8; }
+  .arc-ps b { color: var(--gold); font-size: 34px; text-shadow: 0 0 16px rgba(255, 201, 51, .55); }
+  .arc-pr { margin: 10px 0 4px; font-size: 17px; font-weight: 900; color: #6fdf9a; min-height: 22px; }
+  .arc-btn { display: block; width: 100%; border: none; border-radius: 15px; padding: 14px; font-size: 16px; font-weight: 900; margin-top: 10px; font-family: inherit; cursor: pointer; }
+  .arc-x2 { background: linear-gradient(90deg, #ff2d95, #ff7ab0); color: #fff; box-shadow: 0 6px 20px rgba(255, 45, 149, .45); animation: x2pulse 1.3s ease-in-out infinite; }
+  @keyframes x2pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+  .arc-play { background: linear-gradient(90deg, var(--gold), #ffb300); color: #3d2900; box-shadow: 0 6px 18px rgba(255, 179, 0, .35); }
+  #dpad { position: absolute; bottom: calc(env(safe-area-inset-bottom, 0px) + var(--tg-safe-area-inset-bottom, 0px) + 18px); left: 50%; transform: translateX(-50%); width: 186px; height: 186px; display: none; }
+  #dpad.show { display: block; }
+  .dp {
+    position: absolute; width: 60px; height: 60px; border-radius: 16px;
+    background: rgba(36, 26, 82, .9); border: 1px solid #4a3a8f; color: var(--gold);
+    font-size: 20px; display: grid; place-items: center; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .5);
+  }
+  .dp:active { background: var(--gold); color: #2a1d00; transform: scale(.93); }
+  .dp.up { top: 0; left: 63px; }
+  .dp.left { top: 63px; left: 0; }
+  .dp.right { top: 63px; right: 0; }
+  .dp.down { bottom: 0; left: 63px; }
+  .arc-card.locked { opacity: .45; }
+  .arc-card.locked::after {
+    content: '🔒'; position: absolute; inset: 0; display: grid; place-items: center;
+    font-size: 22px; background: rgba(6, 4, 16, .55);
+  }
+  .arc-exit { display: inline-block; margin-top: 12px; padding: 9px 26px; border-radius: 12px; border: 1px solid #3a2f70; background: #1c1440; color: #cfc6f2; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; }
+  .arc-exit:active { background: #241a52; }
 
   /* ---------- Hourly gift ---------- */
   .gift { position: absolute; top: 4px; right: 4px; z-index: 6; text-align: center; cursor: pointer; }
@@ -644,7 +736,7 @@
   /* ---------- Toast ---------- */
   .toast {
     position: fixed;
-    top: 70px; left: 50%;
+    top: calc(70px + var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)); left: 50%;
     transform: translateX(-50%);
     background: var(--bg-card-2);
     border: 1px solid var(--violet);
@@ -921,6 +1013,7 @@
 
 <div class="page" id="pageRank">
   <h2 class="page-title" id="lblRankTitle">🏆 Leaderboard</h2>
+  <div class="hint-small" id="lblRankUpd" style="margin: 0 0 8px;">🔄 Leaderboard updates every 24 hours</div>
   <div class="friends-stats">
     <div class="fstat"><div class="v" id="myRank">—</div><div class="l" id="lblYourRank">Your rank</div></div>
     <div class="fstat"><div class="v" id="totalPlayers">—</div><div class="l" id="lblTotalPlayers">Total players</div></div>
@@ -959,10 +1052,30 @@
   <button class="task-btn wide" id="spinBtn">SPIN</button>
   <div class="hint-small" id="spinTimer" style="margin-top:8px; font-family:'Orbitron','Vazirmatn',sans-serif;"></div>
 
-  <h2 class="page-title" style="margin-top:18px;" id="lblMoreGames">🎮 More games — coming soon</h2>
-  <div class="task-row"><div class="task-info">🎲 Dice Duel<div class="rw" id="soonTag1">SOON</div></div></div>
-  <div class="task-row"><div class="task-info">📦 Mystery Box<div class="rw" id="soonTag2">SOON</div></div></div>
-  <div class="task-row"><div class="task-info">🃏 Card Flip<div class="rw" id="soonTag3">SOON</div></div></div>
+  <h2 class="page-title" style="margin-top:18px;" id="lblArcade">🎮 Arcade</h2>
+  <div class="arcade-head"><span class="live-dot"></span><b id="mgOnline">0</b> <span id="mgFreeLbl">playing now</span> · <span id="mgLeftLbl">Reward left</span>: <b id="mgFreeN">300</b> NRX</div>
+  <div class="arcade-grid">
+    <div class="arc-card" data-g="s" style="--g1:#0f7a4d;">
+      <div class="pv"><i class="sn n1"></i><i class="sn n2"></i><i class="sn n3"></i><b class="fd"></b></div>
+      <div class="arc-name">Snake</div>
+      <div class="arc-pc"><i></i><span id="pcS">0</span></div>
+    </div>
+    <div class="arc-card" data-g="f" style="--g1:#b8860b;">
+      <div class="pv"><i class="fp p1"></i><i class="fp p2"></i><b class="bird"></b></div>
+      <div class="arc-name">Flappy Atom</div>
+      <div class="arc-pc"><i></i><span id="pcF">0</span></div>
+    </div>
+    <div class="arc-card" data-g="b" style="--g1:#7c2d9c;">
+      <div class="pv"><i class="bk b1"></i><i class="bk b2"></i><i class="bk b3"></i><b class="bb"></b><i class="pd2"></i></div>
+      <div class="arc-name">Astro Breaker</div>
+      <div class="arc-pc"><i></i><span id="pcB">0</span></div>
+    </div>
+    <div class="arc-card" data-g="c" style="--g1:#5b3fd6;">
+      <div class="pv"><b class="drop"></b><b class="drop d2"></b><i class="pad"></i></div>
+      <div class="arc-name">Atom Catcher</div>
+      <div class="arc-pc"><i></i><span id="pcC">0</span></div>
+    </div>
+  </div>
 </div>
 
 <div class="page" id="pageNFT">
@@ -1006,6 +1119,26 @@
     <div class="name-title" id="lblChooseName">Choose your username</div>
     <input type="text" id="nameInput" maxlength="20" placeholder="Enter your name..." autocomplete="off">
     <button class="name-save" id="nameSave">Save & Play</button>
+  </div>
+</div>
+
+<div id="arcOverlay">
+  <canvas id="arcCanvas"></canvas>
+  <div class="arc-hud"><b id="arcScore">0</b><button id="arcClose">✕</button></div>
+  <div id="dpad">
+    <button class="dp up" data-d="u">▲</button>
+    <button class="dp left" data-d="l">◀</button>
+    <button class="dp right" data-d="r">▶</button>
+    <button class="dp down" data-d="d">▼</button>
+  </div>
+  <div id="arcDim"></div>
+  <div id="arcPanel">
+    <div class="arc-pt">🏁</div>
+    <div class="arc-ps" id="arcPS"></div>
+    <div class="arc-pr" id="arcPR"></div>
+    <button class="arc-btn arc-x2" id="arcX2" style="display:none;">📺 x2</button>
+    <button class="arc-btn arc-play" id="arcAgain">▶ Play</button>
+    <button class="arc-exit" id="arcExit">Exit</button>
   </div>
 </div>
 
@@ -1067,6 +1200,14 @@
   if (tg) {
     tg.ready();
     tg.expand();
+    // Fullscreen mode (Bot API 8.0+) — older Telegram clients keep the classic expanded view
+    try {
+      if (tg.isVersionAtLeast && tg.isVersionAtLeast('8.0') && tg.requestFullscreen) {
+        tg.requestFullscreen();
+      }
+    } catch (e) {}
+    // stop swipe-down from collapsing the game mid-tapping (Bot API 7.7+)
+    try { if (tg.disableVerticalSwipes) tg.disableVerticalSwipes(); } catch (e) {}
     const u = tg.initDataUnsafe && tg.initDataUnsafe.user;
     if (u && u.first_name) {
       document.getElementById('playerName').textContent = u.first_name;
@@ -1123,6 +1264,7 @@
     $('levelNum').textContent = lvl + 1;
     $('levelTitle').textContent = LEVELS[lvl].title;
     $('lvlBadge').textContent = LEVEL_BADGES[lvl] || '👑';
+    if (typeof arcRefresh === 'function' && $('mgFreeN')) arcRefresh();
 
     const cur = LEVELS[lvl].need;
     const next = LEVELS[lvl + 1] ? LEVELS[lvl + 1].need : null;
@@ -1253,13 +1395,16 @@
 
   const adOverlay = $('adOverlay');
   let adRunning = false;
+  let adSince = 0;
 
-  function showAd(onReward) {
-    if (adRunning) return;
+  function showAd(onReward, onFail) {
+    if (adRunning && Date.now() - adSince < 30000) return; // auto-release a stuck lock
+    adRunning = false;
 
     // Real Adsgram ad (when a block ID is set)
     if (AdController) {
       adRunning = true;
+      adSince = Date.now();
       AdController.show()
         .then(() => {
           // user watched the ad till the end → give the reward
@@ -1271,9 +1416,10 @@
           render();
         })
         .catch(() => {
-          // user skipped the ad or an error occurred → no reward
+          // user skipped the ad or no ad was available → no reward
           adRunning = false;
           toast(t('tAdSkip'));
+          if (onFail) onFail(); // e.g. let the game start anyway
         });
       return;
     }
@@ -1427,16 +1573,16 @@
   // ---------- Languages (i18n) ----------
   const LANGS = [['en','English'],['fa','فارسی'],['ru','Русский'],['es','Español'],['pt','Português'],['de','Deutsch'],['fr','Français'],['nl','Nederlands'],['sv','Svenska'],['zh','中文']];
   const I18N = {
-  en:{tabGame:'Game',tabTasks:'Tasks',tabRank:'Ranking',tabAbout:'About',balance:'Your Balance',progress:'Level progress',maxLevel:'Max level!',level:'Level',hint:'Tap the coin to earn NRX',multitap:'Multitap',energyLimit:'Energy Limit',refill:'Refill Energy',fullRecharge:'Full recharge',watchAd:'📺 Watch Ad',resetNote:'Upgrade levels reset every 24 hours · Resets in',tasksTitle:'📋 Tasks — Earn NRX',taskChannel:'📢 Join our Channel',taskGroup:'💬 Join our Group',taskInsta:'📸 Follow us on Instagram',join:'Join',follow:'Follow',check:'Check ✓',done:'✅ Done',inviteTitle:'👥 Invite Friends',invited:'Friends invited',earned:'NRX earned',share:'📤 Share Invite Link',copy:'📋 Copy Link',refHint:'+150 NRX for every friend who joins — unlimited! 🚀',rankTitle:'🏆 Leaderboard',yourRank:'Your rank',totalPlayers:'Total players',loading:'Loading…',noPlayers:'No players yet',rankFail:'Failed to load — try again',rankTg:'Open inside Telegram to see rankings',aboutTitle:'ℹ️ About NeuronX',ab1t:'⚛️ What is NeuronX?',ab1:'NeuronX (NRX) is a tap-to-earn mining game on Telegram. Every tap mines NRX — your balance, upgrades and rank are saved forever.',ab2t:'🚀 Why start now?',ab2:'Early miners always win the most. The sooner you start, the more NRX you stack — and your balance secures your position for future rewards and the planned airdrop.',ab3t:'🗺 Roadmap',ab3:'✅ Phase 1 — Game launch<br>✅ Phase 2 — Tasks & referrals<br>✅ Phase 3 — Global leaderboard<br>🔜 Phase 4 — Community events<br>🔜 Phase 5 — NRX token on TON + airdrop',ab4t:'💎 Our vision',ab4:'We are building NeuronX to become a real community-driven token on TON. The bigger our community grows, the bigger NeuronX becomes — early players are always first in line. Keep tapping, keep inviting, be early. 🔥',ab5t:'🌐 Official links',tNoEnergy:'Not enough energy! Wait a moment ⚡',tNoNRX:'Not enough NRX!',tUpgraded:'upgraded! 🎉',tEnergyFull:'Energy is already full!',tRecharged:'Energy fully recharged! ⚡',tAdSkip:'Ad was skipped — no reward this time',tCopied:'Link copied! 📋',tNotJoined:'You have not joined yet!',tVerifyFail:'Could not verify — try again',tNetErr:'Network error — try again',tWelcome:'Welcome',tDailyReset:'Daily reset! Upgrade levels are back to 1 🌅',tEnterName:'Please enter a username',chooseName:'Choose your username',savePlay:'Save & Play',namePh:'Enter your name...',shareText:'🪙 Join me in NeuronX — tap to earn NRX coins!',openTg:'Open the game inside Telegram!',prize:'Prize',prizeNote:'🎁 Prizes are credited automatically on the 1st of every month',prizeIn:'Until next prize payout',giftOpen:'OPEN!',giftWait:'Not ready yet — check the timer ⏳',tabMini:'Mini Game',tabNFT:'NFT',tabWallet:'Wallet',soon:'Coming Soon',soonMini:'Fun mini games with NRX rewards are on the way!',soonNFT:'Exclusive NeuronX NFT collection is coming!',soonWallet:'Connect your TON wallet and withdraw — arriving with the token launch!',miniTitle:'🕹 Mini Games',moreGames:'🎮 More games — coming soon',spin:'SPIN',spinAd:'📺 Watch ad → 3 spins',spinWaitBtn:'⏳ Come back later',spinGranted:'🎡 3 spins added!',day:'Day',wTitle:'⚛️ Welcome to NeuronX!',w1:'👆 Tap the coin — every tap mines NRX',w2:'📋 Do tasks & invite friends: +150 each',w3:'🎡 Spin the Lucky Wheel every 6 hours',w4:'🏆 Top 30 share 95,000 NRX monthly · Token on TON planned',wBtn:'Start Mining 🚀',dcTitle:'📅 Daily Challenge'},
-  fa:{tabGame:'بازی',tabTasks:'ماموریت‌ها',tabRank:'رتبه‌بندی',tabAbout:'درباره',balance:'موجودی شما',progress:'پیشرفت سطح',maxLevel:'حداکثر سطح!',level:'سطح',hint:'برای کسب NRX روی سکه بزن',multitap:'مولتی‌تپ',energyLimit:'ظرفیت انرژی',refill:'شارژ انرژی',fullRecharge:'شارژ کامل',watchAd:'📺 تماشای تبلیغ',resetNote:'سطح ارتقاها هر ۲۴ ساعت صفر می‌شود · ریست تا',tasksTitle:'📋 ماموریت‌ها — NRX بگیر',taskChannel:'📢 عضویت در کانال',taskGroup:'💬 عضویت در گروه',taskInsta:'📸 فالو در اینستاگرام',join:'عضویت',follow:'فالو',check:'بررسی ✓',done:'✅ انجام شد',inviteTitle:'👥 دعوت دوستان',invited:'دوستان دعوت‌شده',earned:'NRX کسب‌شده',share:'📤 اشتراک لینک دعوت',copy:'📋 کپی لینک',refHint:'برای هر دوست ۱۵۰ NRX — نامحدود! 🚀',rankTitle:'🏆 جدول برترین‌ها',yourRank:'رتبه شما',totalPlayers:'کل بازیکنان',loading:'در حال بارگذاری…',noPlayers:'هنوز بازیکنی نیست',rankFail:'خطا در بارگذاری — دوباره تلاش کن',rankTg:'برای دیدن رتبه‌ها بازی را در تلگرام باز کن',aboutTitle:'ℹ️ درباره NeuronX',ab1t:'⚛️ NeuronX چیست؟',ab1:'NeuronX (NRX) یک بازی تپ‌تو‌ارن در تلگرام است. هر ضربه NRX استخراج می‌کند — موجودی، ارتقاها و رتبه‌ات برای همیشه ذخیره می‌شود.',ab2t:'🚀 چرا همین حالا؟',ab2:'ماینرهای اولیه همیشه بیشترین سود را می‌برند. هرچه زودتر شروع کنی NRX بیشتری جمع می‌کنی و جایگاهت برای پاداش‌ها و ایردراپ برنامه‌ریزی‌شده محکم‌تر می‌شود.',ab3t:'🗺 نقشه راه',ab3:'✅ فاز ۱ — راه‌اندازی بازی<br>✅ فاز ۲ — ماموریت‌ها و رفرال<br>✅ فاز ۳ — جدول جهانی<br>🔜 فاز ۴ — رویدادهای کامیونیتی<br>🔜 فاز ۵ — توکن NRX روی TON + ایردراپ',ab4t:'💎 چشم‌انداز ما',ab4:'هدف ما تبدیل NeuronX به یک توکن واقعی کامیونیتی‌محور روی TON است. هرچه جامعه بزرگ‌تر شود، NeuronX بزرگ‌تر می‌شود — بازیکنان اولیه همیشه اول صف هستند. 🔥',ab5t:'🌐 لینک‌های رسمی',tNoEnergy:'انرژی کافی نیست! کمی صبر کن ⚡',tNoNRX:'NRX کافی نداری!',tUpgraded:'ارتقا یافت! 🎉',tEnergyFull:'انرژی همین الان پر است!',tRecharged:'انرژی کامل شارژ شد! ⚡',tAdSkip:'تبلیغ رد شد — این بار پاداشی نیست',tCopied:'لینک کپی شد! 📋',tNotJoined:'هنوز عضو نشده‌ای!',tVerifyFail:'تأیید نشد — دوباره تلاش کن',tNetErr:'خطای شبکه — دوباره تلاش کن',tWelcome:'خوش آمدی',tDailyReset:'ریست روزانه! سطح ارتقاها به ۱ برگشت 🌅',tEnterName:'یک نام وارد کن',chooseName:'نام کاربری‌ات را انتخاب کن',savePlay:'ذخیره و بازی',namePh:'نامت را بنویس...',shareText:'🪙 با من در NeuronX بازی کن — با ضربه NRX بگیر!',openTg:'بازی را داخل تلگرام باز کن!',prize:'جایزه',prizeNote:'🎁 جوایز به‌صورت خودکار اول هر ماه میلادی واریز می‌شود',prizeIn:'تا واریز جوایز بعدی',giftOpen:'باز کن!',giftWait:'هنوز آماده نیست — تایمر را ببین ⏳',tabMini:'مینی‌گیم',tabNFT:'NFT',tabWallet:'کیف پول',soon:'به‌زودی',soonMini:'مینی‌گیم‌های جذاب با جایزه NRX در راه است!',soonNFT:'کالکشن اختصاصی NFT بازی NeuronX به‌زودی می‌آید!',soonWallet:'اتصال کیف پول TON و برداشت — همراه با عرضه توکن می‌آید!',miniTitle:'🕹 مینی‌گیم‌ها',moreGames:'🎮 بازی‌های بیشتر — به‌زودی',spin:'بچرخون',spinAd:'📺 تبلیغ ببین → ۳ چرخش',spinWaitBtn:'⏳ بعداً برگرد',spinGranted:'🎡 ۳ چرخش اضافه شد!',day:'روز',wTitle:'⚛️ به NeuronX خوش آمدی!',w1:'👆 روی سکه بزن — هر ضربه NRX استخراج می‌کند',w2:'📋 ماموریت‌ها و دعوت دوستان: هر نفر ۱۵۰+',w3:'🎡 هر ۶ ساعت گردونه شانس را بچرخان',w4:'🏆 ۳۰ نفر برتر ماهانه ۹۵هزار NRX می‌برند · توکن روی TON در راه است',wBtn:'شروع استخراج 🚀',dcTitle:'📅 چلنج روزانه'},
-  ru:{tabGame:'Игра',tabTasks:'Задания',tabRank:'Рейтинг',tabAbout:'О нас',balance:'Ваш баланс',progress:'Прогресс уровня',maxLevel:'Макс. уровень!',level:'Уровень',hint:'Тапай по монете и зарабатывай NRX',multitap:'Мультитап',energyLimit:'Лимит энергии',refill:'Заряд энергии',fullRecharge:'Полный заряд',watchAd:'📺 Смотреть рекламу',resetNote:'Уровни улучшений сбрасываются каждые 24 ч · Сброс через',tasksTitle:'📋 Задания — получай NRX',taskChannel:'📢 Подпишись на канал',taskGroup:'💬 Вступи в группу',taskInsta:'📸 Подпишись в Instagram',join:'Вступить',follow:'Подписаться',check:'Проверить ✓',done:'✅ Готово',inviteTitle:'👥 Пригласи друзей',invited:'Друзей приглашено',earned:'NRX заработано',share:'📤 Поделиться ссылкой',copy:'📋 Копировать',refHint:'+150 NRX за каждого друга — без лимита! 🚀',rankTitle:'🏆 Таблица лидеров',yourRank:'Ваш ранг',totalPlayers:'Всего игроков',loading:'Загрузка…',noPlayers:'Пока нет игроков',rankFail:'Ошибка загрузки — попробуйте ещё раз',rankTg:'Откройте игру в Telegram, чтобы увидеть рейтинг',aboutTitle:'ℹ️ О NeuronX',ab1t:'⚛️ Что такое NeuronX?',ab1:'NeuronX (NRX) — tap-to-earn игра в Telegram. Каждый тап добывает NRX — баланс, улучшения и ранг сохраняются навсегда.',ab2t:'🚀 Почему сейчас?',ab2:'Ранние майнеры всегда выигрывают больше. Чем раньше начнёшь, тем больше NRX накопишь — и тем прочнее твоя позиция для будущих наград и запланированного аирдропа.',ab3t:'🗺 Дорожная карта',ab3:'✅ Фаза 1 — Запуск игры<br>✅ Фаза 2 — Задания и рефералы<br>✅ Фаза 3 — Мировой рейтинг<br>🔜 Фаза 4 — Ивенты сообщества<br>🔜 Фаза 5 — Токен NRX на TON + аирдроп',ab4t:'💎 Наше видение',ab4:'Мы строим NeuronX как настоящий комьюнити-токен на TON. Чем больше сообщество — тем больше NeuronX. Ранние игроки всегда первые в очереди. 🔥',ab5t:'🌐 Официальные ссылки',tNoEnergy:'Недостаточно энергии! Подожди ⚡',tNoNRX:'Недостаточно NRX!',tUpgraded:'улучшено! 🎉',tEnergyFull:'Энергия уже полная!',tRecharged:'Энергия полностью заряжена! ⚡',tAdSkip:'Реклама пропущена — награды нет',tCopied:'Ссылка скопирована! 📋',tNotJoined:'Ты ещё не вступил!',tVerifyFail:'Не удалось проверить — попробуй ещё',tNetErr:'Ошибка сети — попробуй ещё',tWelcome:'Добро пожаловать',tDailyReset:'Ежедневный сброс! Уровни снова 1 🌅',tEnterName:'Введите имя',chooseName:'Выберите имя',savePlay:'Сохранить и играть',namePh:'Ваше имя...',shareText:'🪙 Играй со мной в NeuronX — тапай и зарабатывай NRX!',openTg:'Откройте игру в Telegram!',prize:'Приз',prizeNote:'🎁 Призы начисляются автоматически 1-го числа каждого месяца',prizeIn:'До следующей выплаты призов',giftOpen:'ОТКРОЙ!',giftWait:'Ещё не готово — смотри таймер ⏳',tabMini:'Мини-игры',tabNFT:'NFT',tabWallet:'Кошелёк',soon:'Скоро',soonMini:'Весёлые мини-игры с наградами NRX уже в пути!',soonNFT:'Эксклюзивная NFT-коллекция NeuronX скоро появится!',soonWallet:'Подключение TON-кошелька и вывод — вместе с запуском токена!',miniTitle:'🕹 Мини-игры',moreGames:'🎮 Больше игр — скоро',spin:'КРУТИТЬ',spinAd:'📺 Реклама → 3 вращения',spinWaitBtn:'⏳ Возвращайся позже',spinGranted:'🎡 +3 вращения!',day:'День',wTitle:'⚛️ Добро пожаловать в NeuronX!',w1:'👆 Тапай по монете — каждый тап добывает NRX',w2:'📋 Задания и друзья: +150 за каждого',w3:'🎡 Крути колесо удачи каждые 6 часов',w4:'🏆 Топ-30 делят 95 000 NRX ежемесячно · Токен на TON скоро',wBtn:'Начать майнинг 🚀',dcTitle:'📅 Ежедневный челлендж'},
-  es:{tabGame:'Juego',tabTasks:'Tareas',tabRank:'Ranking',tabAbout:'Info',balance:'Tu saldo',progress:'Progreso de nivel',maxLevel:'¡Nivel máximo!',level:'Nivel',hint:'Toca la moneda para ganar NRX',multitap:'Multitap',energyLimit:'Límite de energía',refill:'Recargar energía',fullRecharge:'Recarga completa',watchAd:'📺 Ver anuncio',resetNote:'Las mejoras se reinician cada 24 h · Reinicio en',tasksTitle:'📋 Tareas — Gana NRX',taskChannel:'📢 Únete al canal',taskGroup:'💬 Únete al grupo',taskInsta:'📸 Síguenos en Instagram',join:'Unirse',follow:'Seguir',check:'Verificar ✓',done:'✅ Hecho',inviteTitle:'👥 Invita amigos',invited:'Amigos invitados',earned:'NRX ganados',share:'📤 Compartir enlace',copy:'📋 Copiar enlace',refHint:'¡+150 NRX por cada amigo — sin límite! 🚀',rankTitle:'🏆 Clasificación',yourRank:'Tu puesto',totalPlayers:'Jugadores totales',loading:'Cargando…',noPlayers:'Aún no hay jugadores',rankFail:'Error al cargar — inténtalo de nuevo',rankTg:'Abre el juego en Telegram para ver el ranking',aboutTitle:'ℹ️ Sobre NeuronX',ab1t:'⚛️ ¿Qué es NeuronX?',ab1:'NeuronX (NRX) es un juego tap-to-earn en Telegram. Cada toque mina NRX: tu saldo, mejoras y rango se guardan para siempre.',ab2t:'🚀 ¿Por qué ahora?',ab2:'Los mineros tempranos siempre ganan más. Cuanto antes empieces, más NRX acumulas y aseguras tu posición para futuras recompensas y el airdrop planeado.',ab3t:'🗺 Hoja de ruta',ab3:'✅ Fase 1 — Lanzamiento<br>✅ Fase 2 — Tareas y referidos<br>✅ Fase 3 — Ranking global<br>🔜 Fase 4 — Eventos<br>🔜 Fase 5 — Token NRX en TON + airdrop',ab4t:'💎 Nuestra visión',ab4:'Construimos NeuronX para ser un token comunitario real en TON. Cuanto más crece la comunidad, más grande es NeuronX — los primeros siempre van primero. 🔥',ab5t:'🌐 Enlaces oficiales',tNoEnergy:'¡Sin energía! Espera un momento ⚡',tNoNRX:'¡NRX insuficiente!',tUpgraded:'¡mejorado! 🎉',tEnergyFull:'¡La energía ya está llena!',tRecharged:'¡Energía recargada! ⚡',tAdSkip:'Anuncio omitido — sin recompensa',tCopied:'¡Enlace copiado! 📋',tNotJoined:'¡Aún no te has unido!',tVerifyFail:'No se pudo verificar — reintenta',tNetErr:'Error de red — reintenta',tWelcome:'Bienvenido',tDailyReset:'¡Reinicio diario! Mejoras a nivel 1 🌅',tEnterName:'Escribe un nombre',chooseName:'Elige tu nombre',savePlay:'Guardar y jugar',namePh:'Tu nombre...',shareText:'🪙 ¡Juega conmigo a NeuronX — toca y gana NRX!',openTg:'¡Abre el juego en Telegram!',prize:'Premio',prizeNote:'🎁 Los premios se acreditan automáticamente el día 1 de cada mes',prizeIn:'Hasta el próximo pago de premios',giftOpen:'¡ABRIR!',giftWait:'Aún no está listo — mira el temporizador ⏳',tabMini:'Minijuegos',tabNFT:'NFT',tabWallet:'Billetera',soon:'Próximamente',soonMini:'¡Minijuegos divertidos con premios NRX en camino!',soonNFT:'¡La colección NFT exclusiva de NeuronX está llegando!',soonWallet:'Conecta tu billetera TON y retira — llegará con el lanzamiento del token.',miniTitle:'🕹 Minijuegos',moreGames:'🎮 Más juegos — pronto',spin:'GIRAR',spinAd:'📺 Ver anuncio → 3 giros',spinWaitBtn:'⏳ Vuelve más tarde',spinGranted:'🎡 ¡+3 giros!',day:'Día',wTitle:'⚛️ ¡Bienvenido a NeuronX!',w1:'👆 Toca la moneda — cada toque mina NRX',w2:'📋 Tareas e invita amigos: +150 por cada uno',w3:'🎡 Gira la ruleta cada 6 horas',w4:'🏆 El top 30 comparte 95.000 NRX al mes · Token en TON pronto',wBtn:'Empezar a minar 🚀',dcTitle:'📅 Desafío diario'},
-  pt:{tabGame:'Jogo',tabTasks:'Tarefas',tabRank:'Ranking',tabAbout:'Sobre',balance:'Seu saldo',progress:'Progresso de nível',maxLevel:'Nível máximo!',level:'Nível',hint:'Toque na moeda para ganhar NRX',multitap:'Multitap',energyLimit:'Limite de energia',refill:'Recarregar energia',fullRecharge:'Recarga completa',watchAd:'📺 Ver anúncio',resetNote:'Melhorias reiniciam a cada 24 h · Reinício em',tasksTitle:'📋 Tarefas — Ganhe NRX',taskChannel:'📢 Entre no canal',taskGroup:'💬 Entre no grupo',taskInsta:'📸 Siga no Instagram',join:'Entrar',follow:'Seguir',check:'Verificar ✓',done:'✅ Feito',inviteTitle:'👥 Convide amigos',invited:'Amigos convidados',earned:'NRX ganhos',share:'📤 Compartilhar link',copy:'📋 Copiar link',refHint:'+150 NRX por cada amigo — sem limite! 🚀',rankTitle:'🏆 Classificação',yourRank:'Sua posição',totalPlayers:'Total de jogadores',loading:'Carregando…',noPlayers:'Ainda sem jogadores',rankFail:'Falha ao carregar — tente de novo',rankTg:'Abra o jogo no Telegram para ver o ranking',aboutTitle:'ℹ️ Sobre o NeuronX',ab1t:'⚛️ O que é NeuronX?',ab1:'NeuronX (NRX) é um jogo tap-to-earn no Telegram. Cada toque minera NRX — saldo, melhorias e ranking ficam salvos para sempre.',ab2t:'🚀 Por que agora?',ab2:'Mineradores iniciais sempre ganham mais. Quanto antes começar, mais NRX acumula — e garante sua posição para recompensas futuras e o airdrop planejado.',ab3t:'🗺 Roteiro',ab3:'✅ Fase 1 — Lançamento<br>✅ Fase 2 — Tarefas e indicações<br>✅ Fase 3 — Ranking global<br>🔜 Fase 4 — Eventos<br>🔜 Fase 5 — Token NRX na TON + airdrop',ab4t:'💎 Nossa visão',ab4:'Estamos construindo o NeuronX para ser um token comunitário real na TON. Quanto maior a comunidade, maior o NeuronX — os primeiros sempre saem na frente. 🔥',ab5t:'🌐 Links oficiais',tNoEnergy:'Sem energia! Aguarde ⚡',tNoNRX:'NRX insuficiente!',tUpgraded:'melhorado! 🎉',tEnergyFull:'A energia já está cheia!',tRecharged:'Energia recarregada! ⚡',tAdSkip:'Anúncio pulado — sem recompensa',tCopied:'Link copiado! 📋',tNotJoined:'Você ainda não entrou!',tVerifyFail:'Não foi possível verificar — tente de novo',tNetErr:'Erro de rede — tente de novo',tWelcome:'Bem-vindo',tDailyReset:'Reinício diário! Melhorias no nível 1 🌅',tEnterName:'Digite um nome',chooseName:'Escolha seu nome',savePlay:'Salvar e jogar',namePh:'Seu nome...',shareText:'🪙 Jogue NeuronX comigo — toque e ganhe NRX!',openTg:'Abra o jogo no Telegram!',prize:'Prêmio',prizeNote:'🎁 Os prêmios são creditados automaticamente no dia 1 de cada mês',prizeIn:'Até o próximo pagamento de prêmios',giftOpen:'ABRIR!',giftWait:'Ainda não está pronto — veja o cronômetro ⏳',tabMini:'Minijogos',tabNFT:'NFT',tabWallet:'Carteira',soon:'Em breve',soonMini:'Minijogos divertidos com prêmios NRX estão a caminho!',soonNFT:'A coleção NFT exclusiva do NeuronX está chegando!',soonWallet:'Conecte sua carteira TON e saque — chega com o lançamento do token.',miniTitle:'🕹 Minijogos',moreGames:'🎮 Mais jogos — em breve',spin:'GIRAR',spinAd:'📺 Ver anúncio → 3 giros',spinWaitBtn:'⏳ Volte mais tarde',spinGranted:'🎡 +3 giros!',day:'Dia',wTitle:'⚛️ Bem-vindo ao NeuronX!',w1:'👆 Toque na moeda — cada toque minera NRX',w2:'📋 Tarefas e convide amigos: +150 cada',w3:'🎡 Gire a roleta a cada 6 horas',w4:'🏆 Top 30 divide 95.000 NRX por mês · Token na TON em breve',wBtn:'Começar a minerar 🚀',dcTitle:'📅 Desafio diário'},
-  de:{tabGame:'Spiel',tabTasks:'Aufgaben',tabRank:'Rangliste',tabAbout:'Info',balance:'Dein Guthaben',progress:'Level-Fortschritt',maxLevel:'Max. Level!',level:'Level',hint:'Tippe auf die Münze und verdiene NRX',multitap:'Multitap',energyLimit:'Energielimit',refill:'Energie aufladen',fullRecharge:'Volle Aufladung',watchAd:'📺 Werbung ansehen',resetNote:'Upgrades werden alle 24 Std. zurückgesetzt · Reset in',tasksTitle:'📋 Aufgaben — NRX verdienen',taskChannel:'📢 Kanal beitreten',taskGroup:'💬 Gruppe beitreten',taskInsta:'📸 Auf Instagram folgen',join:'Beitreten',follow:'Folgen',check:'Prüfen ✓',done:'✅ Erledigt',inviteTitle:'👥 Freunde einladen',invited:'Eingeladene Freunde',earned:'Verdiente NRX',share:'📤 Link teilen',copy:'📋 Link kopieren',refHint:'+150 NRX für jeden Freund — unbegrenzt! 🚀',rankTitle:'🏆 Rangliste',yourRank:'Dein Rang',totalPlayers:'Spieler gesamt',loading:'Laden…',noPlayers:'Noch keine Spieler',rankFail:'Laden fehlgeschlagen — erneut versuchen',rankTg:'Öffne das Spiel in Telegram für die Rangliste',aboutTitle:'ℹ️ Über NeuronX',ab1t:'⚛️ Was ist NeuronX?',ab1:'NeuronX (NRX) ist ein Tap-to-Earn-Spiel auf Telegram. Jeder Tap schürft NRX — Guthaben, Upgrades und Rang werden dauerhaft gespeichert.',ab2t:'🚀 Warum jetzt?',ab2:'Frühe Miner gewinnen immer am meisten. Je früher du startest, desto mehr NRX sammelst du — und sicherst deine Position für künftige Belohnungen und den geplanten Airdrop.',ab3t:'🗺 Roadmap',ab3:'✅ Phase 1 — Spielstart<br>✅ Phase 2 — Aufgaben & Referrals<br>✅ Phase 3 — Globale Rangliste<br>🔜 Phase 4 — Community-Events<br>🔜 Phase 5 — NRX-Token auf TON + Airdrop',ab4t:'💎 Unsere Vision',ab4:'Wir bauen NeuronX zu einem echten Community-Token auf TON. Je größer die Community, desto größer NeuronX — frühe Spieler stehen immer ganz vorne. 🔥',ab5t:'🌐 Offizielle Links',tNoEnergy:'Nicht genug Energie! Kurz warten ⚡',tNoNRX:'Nicht genug NRX!',tUpgraded:'verbessert! 🎉',tEnergyFull:'Energie ist schon voll!',tRecharged:'Energie voll aufgeladen! ⚡',tAdSkip:'Werbung übersprungen — keine Belohnung',tCopied:'Link kopiert! 📋',tNotJoined:'Du bist noch nicht beigetreten!',tVerifyFail:'Prüfung fehlgeschlagen — erneut versuchen',tNetErr:'Netzwerkfehler — erneut versuchen',tWelcome:'Willkommen',tDailyReset:'Täglicher Reset! Upgrades wieder auf 1 🌅',tEnterName:'Bitte Namen eingeben',chooseName:'Wähle deinen Namen',savePlay:'Speichern & spielen',namePh:'Dein Name...',shareText:'🪙 Spiel NeuronX mit mir — tippen und NRX verdienen!',openTg:'Öffne das Spiel in Telegram!',prize:'Preis',prizeNote:'🎁 Preise werden automatisch am 1. jedes Monats gutgeschrieben',prizeIn:'Bis zur nächsten Preisvergabe',giftOpen:'ÖFFNEN!',giftWait:'Noch nicht bereit — sieh auf den Timer ⏳',tabMini:'Minispiele',tabNFT:'NFT',tabWallet:'Wallet',soon:'Bald verfügbar',soonMini:'Spaßige Minispiele mit NRX-Belohnungen sind unterwegs!',soonNFT:'Die exklusive NeuronX-NFT-Kollektion kommt bald!',soonWallet:'TON-Wallet verbinden und auszahlen — kommt mit dem Token-Launch!',miniTitle:'🕹 Minispiele',moreGames:'🎮 Mehr Spiele — bald',spin:'DREHEN',spinAd:'📺 Werbung → 3 Drehs',spinWaitBtn:'⏳ Komm später wieder',spinGranted:'🎡 +3 Drehs!',day:'Tag',wTitle:'⚛️ Willkommen bei NeuronX!',w1:'👆 Tippe auf die Münze — jeder Tap schürft NRX',w2:'📋 Aufgaben & Freunde einladen: je +150',w3:'🎡 Dreh das Glücksrad alle 6 Stunden',w4:'🏆 Top 30 teilen monatlich 95.000 NRX · Token auf TON geplant',wBtn:'Mining starten 🚀',dcTitle:'📅 Tages-Challenge'},
-  fr:{tabGame:'Jeu',tabTasks:'Tâches',tabRank:'Classement',tabAbout:'À propos',balance:'Votre solde',progress:'Progression',maxLevel:'Niveau max !',level:'Niveau',hint:'Tape la pièce pour gagner des NRX',multitap:'Multitap',energyLimit:"Limite d'énergie",refill:'Recharger',fullRecharge:'Recharge complète',watchAd:'📺 Voir une pub',resetNote:'Les améliorations se réinitialisent toutes les 24 h · Reset dans',tasksTitle:'📋 Tâches — Gagne des NRX',taskChannel:'📢 Rejoins la chaîne',taskGroup:'💬 Rejoins le groupe',taskInsta:'📸 Suis-nous sur Instagram',join:'Rejoindre',follow:'Suivre',check:'Vérifier ✓',done:'✅ Fait',inviteTitle:'👥 Invite des amis',invited:'Amis invités',earned:'NRX gagnés',share:'📤 Partager le lien',copy:'📋 Copier le lien',refHint:'+150 NRX par ami — illimité ! 🚀',rankTitle:'🏆 Classement',yourRank:'Ton rang',totalPlayers:'Joueurs au total',loading:'Chargement…',noPlayers:'Pas encore de joueurs',rankFail:'Échec du chargement — réessaie',rankTg:'Ouvre le jeu dans Telegram pour voir le classement',aboutTitle:'ℹ️ À propos de NeuronX',ab1t:"⚛️ C'est quoi NeuronX ?",ab1:'NeuronX (NRX) est un jeu tap-to-earn sur Telegram. Chaque tap mine des NRX — solde, améliorations et rang sont sauvegardés pour toujours.',ab2t:'🚀 Pourquoi maintenant ?',ab2:"Les premiers mineurs gagnent toujours le plus. Plus tu commences tôt, plus tu accumules de NRX — et tu sécurises ta place pour les futures récompenses et l'airdrop prévu.",ab3t:'🗺 Feuille de route',ab3:'✅ Phase 1 — Lancement<br>✅ Phase 2 — Tâches & parrainage<br>✅ Phase 3 — Classement mondial<br>🔜 Phase 4 — Événements<br>🔜 Phase 5 — Token NRX sur TON + airdrop',ab4t:'💎 Notre vision',ab4:'Nous construisons NeuronX pour devenir un vrai token communautaire sur TON. Plus la communauté grandit, plus NeuronX grandit — les premiers joueurs passent toujours en premier. 🔥',ab5t:'🌐 Liens officiels',tNoEnergy:"Pas assez d'énergie ! Attends ⚡",tNoNRX:'Pas assez de NRX !',tUpgraded:'amélioré ! 🎉',tEnergyFull:"L'énergie est déjà pleine !",tRecharged:'Énergie rechargée ! ⚡',tAdSkip:'Pub ignorée — pas de récompense',tCopied:'Lien copié ! 📋',tNotJoined:"Tu n'as pas encore rejoint !",tVerifyFail:'Vérification impossible — réessaie',tNetErr:'Erreur réseau — réessaie',tWelcome:'Bienvenue',tDailyReset:'Reset quotidien ! Améliorations au niveau 1 🌅',tEnterName:'Entre un nom',chooseName:'Choisis ton nom',savePlay:'Enregistrer & jouer',namePh:'Ton nom...',shareText:'🪙 Joue à NeuronX avec moi — tape et gagne des NRX !',openTg:'Ouvre le jeu dans Telegram !',prize:'Prix',prizeNote:'🎁 Les prix sont crédités automatiquement le 1er de chaque mois',prizeIn:'Avant le prochain versement des prix',giftOpen:'OUVRE !',giftWait:'Pas encore prêt — regarde le minuteur ⏳',tabMini:'Mini-jeux',tabNFT:'NFT',tabWallet:'Portefeuille',soon:'Bientôt',soonMini:'Des mini-jeux fun avec des récompenses NRX arrivent !',soonNFT:'La collection NFT exclusive NeuronX arrive !',soonWallet:'Connecte ton portefeuille TON et retire — avec le lancement du token !',miniTitle:'🕹 Mini-jeux',moreGames:'🎮 Plus de jeux — bientôt',spin:'TOURNER',spinAd:'📺 Pub → 3 tours',spinWaitBtn:'⏳ Reviens plus tard',spinGranted:'🎡 +3 tours !',day:'Jour',wTitle:'⚛️ Bienvenue sur NeuronX !',w1:'👆 Tape la pièce — chaque tap mine des NRX',w2:'📋 Tâches et amis : +150 chacun',w3:'🎡 Tourne la roue toutes les 6 heures',w4:'🏆 Le top 30 partage 95 000 NRX par mois · Token sur TON bientôt',wBtn:'Commencer à miner 🚀',dcTitle:'📅 Défi quotidien'},
-  nl:{tabGame:'Spel',tabTasks:'Taken',tabRank:'Ranglijst',tabAbout:'Over',balance:'Jouw saldo',progress:'Levelvoortgang',maxLevel:'Max level!',level:'Level',hint:'Tik op de munt en verdien NRX',multitap:'Multitap',energyLimit:'Energielimiet',refill:'Energie opladen',fullRecharge:'Volledig opladen',watchAd:'📺 Advertentie kijken',resetNote:'Upgrades resetten elke 24 uur · Reset over',tasksTitle:'📋 Taken — Verdien NRX',taskChannel:'📢 Word lid van het kanaal',taskGroup:'💬 Word lid van de groep',taskInsta:'📸 Volg ons op Instagram',join:'Lid worden',follow:'Volgen',check:'Controleer ✓',done:'✅ Klaar',inviteTitle:'👥 Nodig vrienden uit',invited:'Vrienden uitgenodigd',earned:'NRX verdiend',share:'📤 Deel uitnodigingslink',copy:'📋 Kopieer link',refHint:'+150 NRX per vriend — onbeperkt! 🚀',rankTitle:'🏆 Ranglijst',yourRank:'Jouw rang',totalPlayers:'Totaal spelers',loading:'Laden…',noPlayers:'Nog geen spelers',rankFail:'Laden mislukt — probeer opnieuw',rankTg:'Open het spel in Telegram voor de ranglijst',aboutTitle:'ℹ️ Over NeuronX',ab1t:'⚛️ Wat is NeuronX?',ab1:'NeuronX (NRX) is een tap-to-earn game op Telegram. Elke tik mijnt NRX — je saldo, upgrades en rang worden voor altijd opgeslagen.',ab2t:'🚀 Waarom nu?',ab2:'Vroege miners winnen altijd het meest. Hoe eerder je begint, hoe meer NRX je verzamelt — en je verzekert je positie voor toekomstige beloningen en de geplande airdrop.',ab3t:'🗺 Roadmap',ab3:'✅ Fase 1 — Lancering<br>✅ Fase 2 — Taken & referrals<br>✅ Fase 3 — Wereldranglijst<br>🔜 Fase 4 — Community-events<br>🔜 Fase 5 — NRX-token op TON + airdrop',ab4t:'💎 Onze visie',ab4:'We bouwen NeuronX tot een echte community-token op TON. Hoe groter de community, hoe groter NeuronX — vroege spelers staan altijd vooraan. 🔥',ab5t:'🌐 Officiële links',tNoEnergy:'Niet genoeg energie! Even wachten ⚡',tNoNRX:'Niet genoeg NRX!',tUpgraded:'geüpgraded! 🎉',tEnergyFull:'Energie is al vol!',tRecharged:'Energie volledig opgeladen! ⚡',tAdSkip:'Advertentie overgeslagen — geen beloning',tCopied:'Link gekopieerd! 📋',tNotJoined:'Je bent nog geen lid!',tVerifyFail:'Verificatie mislukt — probeer opnieuw',tNetErr:'Netwerkfout — probeer opnieuw',tWelcome:'Welkom',tDailyReset:'Dagelijkse reset! Upgrades terug naar 1 🌅',tEnterName:'Voer een naam in',chooseName:'Kies je naam',savePlay:'Opslaan & spelen',namePh:'Jouw naam...',shareText:'🪙 Speel NeuronX met mij — tik en verdien NRX!',openTg:'Open het spel in Telegram!',prize:'Prijs',prizeNote:'🎁 Prijzen worden automatisch bijgeschreven op de 1e van elke maand',prizeIn:'Tot de volgende prijsuitreiking',giftOpen:'OPEN!',giftWait:'Nog niet klaar — kijk naar de timer ⏳',tabMini:'Minigames',tabNFT:'NFT',tabWallet:'Wallet',soon:'Binnenkort',soonMini:'Leuke minigames met NRX-beloningen komen eraan!',soonNFT:'De exclusieve NeuronX NFT-collectie komt eraan!',soonWallet:'Verbind je TON-wallet en neem op — komt met de tokenlancering!',miniTitle:'🕹 Minigames',moreGames:'🎮 Meer games — binnenkort',spin:'DRAAI',spinAd:'📺 Advertentie → 3 spins',spinWaitBtn:'⏳ Kom later terug',spinGranted:'🎡 +3 spins!',day:'Dag',wTitle:'⚛️ Welkom bij NeuronX!',w1:'👆 Tik op de munt — elke tik mijnt NRX',w2:'📋 Taken en vrienden uitnodigen: +150 elk',w3:'🎡 Draai het rad elke 6 uur',w4:'🏆 Top 30 deelt maandelijks 95.000 NRX · Token op TON gepland',wBtn:'Start met minen 🚀',dcTitle:'📅 Dagelijkse challenge'},
-  sv:{tabGame:'Spel',tabTasks:'Uppdrag',tabRank:'Topplista',tabAbout:'Om',balance:'Ditt saldo',progress:'Nivåframsteg',maxLevel:'Maxnivå!',level:'Nivå',hint:'Tryck på myntet och tjäna NRX',multitap:'Multitap',energyLimit:'Energigräns',refill:'Ladda energi',fullRecharge:'Full laddning',watchAd:'📺 Titta på annons',resetNote:'Uppgraderingar nollställs var 24:e timme · Nollställs om',tasksTitle:'📋 Uppdrag — Tjäna NRX',taskChannel:'📢 Gå med i kanalen',taskGroup:'💬 Gå med i gruppen',taskInsta:'📸 Följ oss på Instagram',join:'Gå med',follow:'Följ',check:'Kontrollera ✓',done:'✅ Klart',inviteTitle:'👥 Bjud in vänner',invited:'Inbjudna vänner',earned:'Intjänade NRX',share:'📤 Dela länk',copy:'📋 Kopiera länk',refHint:'+150 NRX per vän — obegränsat! 🚀',rankTitle:'🏆 Topplista',yourRank:'Din placering',totalPlayers:'Totalt spelare',loading:'Laddar…',noPlayers:'Inga spelare än',rankFail:'Kunde inte ladda — försök igen',rankTg:'Öppna spelet i Telegram för att se topplistan',aboutTitle:'ℹ️ Om NeuronX',ab1t:'⚛️ Vad är NeuronX?',ab1:'NeuronX (NRX) är ett tap-to-earn-spel på Telegram. Varje tryck utvinner NRX — saldo, uppgraderingar och rang sparas för alltid.',ab2t:'🚀 Varför nu?',ab2:'Tidiga miners vinner alltid mest. Ju tidigare du börjar, desto mer NRX samlar du — och säkrar din plats för framtida belöningar och den planerade airdroppen.',ab3t:'🗺 Färdplan',ab3:'✅ Fas 1 — Lansering<br>✅ Fas 2 — Uppdrag & referrals<br>✅ Fas 3 — Global topplista<br>🔜 Fas 4 — Community-event<br>🔜 Fas 5 — NRX-token på TON + airdrop',ab4t:'💎 Vår vision',ab4:'Vi bygger NeuronX till en riktig community-token på TON. Ju större community, desto större NeuronX — tidiga spelare står alltid först. 🔥',ab5t:'🌐 Officiella länkar',tNoEnergy:'Inte tillräckligt med energi! Vänta ⚡',tNoNRX:'Inte tillräckligt med NRX!',tUpgraded:'uppgraderad! 🎉',tEnergyFull:'Energin är redan full!',tRecharged:'Energin fulladdad! ⚡',tAdSkip:'Annons hoppades över — ingen belöning',tCopied:'Länk kopierad! 📋',tNotJoined:'Du har inte gått med än!',tVerifyFail:'Kunde inte verifiera — försök igen',tNetErr:'Nätverksfel — försök igen',tWelcome:'Välkommen',tDailyReset:'Daglig nollställning! Uppgraderingar på nivå 1 🌅',tEnterName:'Ange ett namn',chooseName:'Välj ditt namn',savePlay:'Spara & spela',namePh:'Ditt namn...',shareText:'🪙 Spela NeuronX med mig — tryck och tjäna NRX!',openTg:'Öppna spelet i Telegram!',prize:'Pris',prizeNote:'🎁 Priser delas ut automatiskt den 1:a varje månad',prizeIn:'Till nästa prisutdelning',giftOpen:'ÖPPNA!',giftWait:'Inte redo än — kolla timern ⏳',tabMini:'Minispel',tabNFT:'NFT',tabWallet:'Plånbok',soon:'Snart',soonMini:'Roliga minispel med NRX-belöningar är på väg!',soonNFT:'Den exklusiva NeuronX NFT-kollektionen kommer snart!',soonWallet:'Anslut din TON-plånbok och ta ut — kommer med tokenlanseringen!',miniTitle:'🕹 Minispel',moreGames:'🎮 Fler spel — snart',spin:'SNURRA',spinAd:'📺 Annons → 3 snurr',spinWaitBtn:'⏳ Kom tillbaka senare',spinGranted:'🎡 +3 snurr!',day:'Dag',wTitle:'⚛️ Välkommen till NeuronX!',w1:'👆 Tryck på myntet — varje tryck utvinner NRX',w2:'📋 Uppdrag och bjud in vänner: +150 vardera',w3:'🎡 Snurra lyckohjulet var 6:e timme',w4:'🏆 Topp 30 delar 95 000 NRX varje månad · Token på TON planeras',wBtn:'Börja mina 🚀',dcTitle:'📅 Daglig utmaning'},
-  zh:{tabGame:'游戏',tabTasks:'任务',tabRank:'排行榜',tabAbout:'关于',balance:'你的余额',progress:'等级进度',maxLevel:'已达最高等级！',level:'等级',hint:'点击金币赚取 NRX',multitap:'多重点击',energyLimit:'能量上限',refill:'补充能量',fullRecharge:'完全充能',watchAd:'📺 观看广告',resetNote:'升级每24小时重置 · 重置倒计时',tasksTitle:'📋 任务 — 赚取 NRX',taskChannel:'📢 加入频道',taskGroup:'💬 加入群组',taskInsta:'📸 关注 Instagram',join:'加入',follow:'关注',check:'验证 ✓',done:'✅ 已完成',inviteTitle:'👥 邀请好友',invited:'已邀请好友',earned:'已赚取 NRX',share:'📤 分享邀请链接',copy:'📋 复制链接',refHint:'每邀请一位好友 +150 NRX — 无上限！🚀',rankTitle:'🏆 排行榜',yourRank:'你的排名',totalPlayers:'玩家总数',loading:'加载中…',noPlayers:'暂无玩家',rankFail:'加载失败 — 请重试',rankTg:'请在 Telegram 中打开游戏查看排行榜',aboutTitle:'ℹ️ 关于 NeuronX',ab1t:'⚛️ NeuronX 是什么？',ab1:'NeuronX (NRX) 是 Telegram 上的点击赚币游戏。每次点击都在挖 NRX — 你的余额、升级和排名将永久保存。',ab2t:'🚀 为什么现在开始？',ab2:'早期矿工总是收获最多。越早开始，积累的 NRX 越多 — 也为未来奖励和计划中的空投锁定你的位置。',ab3t:'🗺 路线图',ab3:'✅ 阶段1 — 游戏上线<br>✅ 阶段2 — 任务与邀请<br>✅ 阶段3 — 全球排行榜<br>🔜 阶段4 — 社区活动<br>🔜 阶段5 — NRX 代币上线 TON + 空投',ab4t:'💎 我们的愿景',ab4:'我们致力于让 NeuronX 成为 TON 上真正的社区代币。社区越大，NeuronX 越强 — 早期玩家永远排在最前。🔥',ab5t:'🌐 官方链接',tNoEnergy:'能量不足！稍等片刻 ⚡',tNoNRX:'NRX 不足！',tUpgraded:'升级成功！🎉',tEnergyFull:'能量已满！',tRecharged:'能量已充满！⚡',tAdSkip:'广告被跳过 — 无奖励',tCopied:'链接已复制！📋',tNotJoined:'你还没有加入！',tVerifyFail:'验证失败 — 请重试',tNetErr:'网络错误 — 请重试',tWelcome:'欢迎',tDailyReset:'每日重置！升级回到1级 🌅',tEnterName:'请输入名字',chooseName:'选择你的用户名',savePlay:'保存并开始',namePh:'你的名字...',shareText:'🪙 和我一起玩 NeuronX — 点击赚 NRX！',openTg:'请在 Telegram 中打开游戏！',prize:'奖励',prizeNote:'🎁 奖励在每月1日自动发放',prizeIn:'距离下次奖励发放',giftOpen:'开启！',giftWait:'还没准备好 — 看看倒计时 ⏳',tabMini:'小游戏',tabNFT:'NFT',tabWallet:'钱包',soon:'即将推出',soonMini:'有 NRX 奖励的趣味小游戏即将上线！',soonNFT:'NeuronX 专属 NFT 系列即将到来！',soonWallet:'连接 TON 钱包并提现 — 随代币发布推出！',miniTitle:'🕹 小游戏',moreGames:'🎮 更多游戏 — 敬请期待',spin:'旋转',spinAd:'📺 看广告 → 3次旋转',spinWaitBtn:'⏳ 稍后再来',spinGranted:'🎡 +3次旋转！',day:'Day',wTitle:'⚛️ 欢迎来到 NeuronX！',w1:'👆 点击金币 — 每次点击都在挖 NRX',w2:'📋 完成任务并邀请好友：每人 +300',w3:'🎡 每6小时转一次幸运转盘',w4:'🏆 前30名每月分享9.5万 NRX · TON 代币即将推出',wBtn:'开始挖矿 🚀',dcTitle:'📅 每日挑战'}
+  en:{tabGame:'Game',tabTasks:'Tasks',tabRank:'Ranking',tabAbout:'About',balance:'Your Balance',progress:'Level progress',maxLevel:'Max level!',level:'Level',hint:'Tap the coin to earn NRX',multitap:'Multitap',energyLimit:'Energy Limit',refill:'Refill Energy',fullRecharge:'Full recharge',watchAd:'📺 Watch Ad',resetNote:'Upgrade levels reset every 24 hours · Resets in',tasksTitle:'📋 Tasks — Earn NRX',taskChannel:'📢 Join our Channel',taskGroup:'💬 Join our Group',taskInsta:'📸 Follow us on Instagram',join:'Join',follow:'Follow',check:'Check ✓',done:'✅ Done',inviteTitle:'👥 Invite Friends',invited:'Friends invited',earned:'NRX earned',share:'📤 Share Invite Link',copy:'📋 Copy Link',refHint:'+150 NRX for every friend who joins — unlimited! 🚀',rankTitle:'🏆 Leaderboard',rankUpd:'🔄 Leaderboard updates every 24 hours',yourRank:'Your rank',totalPlayers:'Total players',loading:'Loading…',noPlayers:'No players yet',rankFail:'Failed to load — try again',rankTg:'Open inside Telegram to see rankings',aboutTitle:'ℹ️ About NeuronX',ab1t:'⚛️ What is NeuronX?',ab1:'NeuronX (NRX) is a tap-to-earn mining game on Telegram. Every tap mines NRX — your balance, upgrades and rank are saved forever.',ab2t:'🚀 Why start now?',ab2:'Early miners always win the most. The sooner you start, the more NRX you stack — and your balance secures your position for future rewards and the planned airdrop.',ab3t:'🗺 Roadmap',ab3:'✅ Phase 1 — Game launch<br>✅ Phase 2 — Tasks & referrals<br>✅ Phase 3 — Global leaderboard<br>🔜 Phase 4 — Community events<br>🔜 Phase 5 — NRX token on TON + airdrop',ab4t:'💎 Our vision',ab4:'We are building NeuronX to become a real community-driven token on TON. The bigger our community grows, the bigger NeuronX becomes — early players are always first in line. Keep tapping, keep inviting, be early. 🔥',ab5t:'🌐 Official links',tNoEnergy:'Not enough energy! Wait a moment ⚡',tNoNRX:'Not enough NRX!',tUpgraded:'upgraded! 🎉',tEnergyFull:'Energy is already full!',tRecharged:'Energy fully recharged! ⚡',tAdSkip:'Ad was skipped — no reward this time',tCopied:'Link copied! 📋',tNotJoined:'You have not joined yet!',tVerifyFail:'Could not verify — try again',tNetErr:'Network error — try again',tWelcome:'Welcome',tDailyReset:'Daily reset! Upgrade levels are back to 1 🌅',tEnterName:'Please enter a username',chooseName:'Choose your username',savePlay:'Save & Play',namePh:'Enter your name...',shareText:'🪙 Join me in NeuronX — tap to earn NRX coins!',openTg:'Open the game inside Telegram!',prize:'Prize',prizeNote:'🎁 Prizes are credited automatically on the 1st of every month',prizeIn:'Until next prize payout',giftOpen:'OPEN!',giftWait:'Not ready yet — check the timer ⏳',tabMini:'Mini Game',tabNFT:'NFT',tabWallet:'Wallet',soon:'Coming Soon',soonMini:'Fun mini games with NRX rewards are on the way!',soonNFT:'Exclusive NeuronX NFT collection is coming!',soonWallet:'Connect your TON wallet and withdraw — arriving with the token launch!',miniTitle:'🕹 Mini Games',moreGames:'🎮 More games — coming soon',spin:'SPIN',spinAd:'📺 Watch ad → 3 spins',spinWaitBtn:'⏳ Come back later',spinGranted:'🎡 3 spins added!',day:'Day',wTitle:'⚛️ Welcome to NeuronX!',w1:'👆 Tap the coin — every tap mines NRX',w2:'📋 Do tasks & invite friends: +150 each',w3:'🎡 Spin the Lucky Wheel every 6 hours',w4:'🏆 Top 30 share 95,000 NRX monthly · Token on TON planned',wBtn:'Start Mining 🚀',dcTitle:'📅 Daily Challenge',mgArcade:'🎮 Arcade',mgFree:'Free plays',mgCap:'Daily reward limit reached',mgPlaying:'playing now',mgLeft:'Daily reward left'},
+  fa:{tabGame:'بازی',tabTasks:'ماموریت‌ها',tabRank:'رتبه‌بندی',tabAbout:'درباره',balance:'موجودی شما',progress:'پیشرفت سطح',maxLevel:'حداکثر سطح!',level:'سطح',hint:'برای کسب NRX روی سکه بزن',multitap:'مولتی‌تپ',energyLimit:'ظرفیت انرژی',refill:'شارژ انرژی',fullRecharge:'شارژ کامل',watchAd:'📺 تماشای تبلیغ',resetNote:'سطح ارتقاها هر ۲۴ ساعت صفر می‌شود · ریست تا',tasksTitle:'📋 ماموریت‌ها — NRX بگیر',taskChannel:'📢 عضویت در کانال',taskGroup:'💬 عضویت در گروه',taskInsta:'📸 فالو در اینستاگرام',join:'عضویت',follow:'فالو',check:'بررسی ✓',done:'✅ انجام شد',inviteTitle:'👥 دعوت دوستان',invited:'دوستان دعوت‌شده',earned:'NRX کسب‌شده',share:'📤 اشتراک لینک دعوت',copy:'📋 کپی لینک',refHint:'برای هر دوست ۱۵۰ NRX — نامحدود! 🚀',rankTitle:'🏆 جدول برترین‌ها',rankUpd:'🔄 جدول هر ۲۴ ساعت به‌روزرسانی می‌شود',yourRank:'رتبه شما',totalPlayers:'کل بازیکنان',loading:'در حال بارگذاری…',noPlayers:'هنوز بازیکنی نیست',rankFail:'خطا در بارگذاری — دوباره تلاش کن',rankTg:'برای دیدن رتبه‌ها بازی را در تلگرام باز کن',aboutTitle:'ℹ️ درباره NeuronX',ab1t:'⚛️ NeuronX چیست؟',ab1:'NeuronX (NRX) یک بازی تپ‌تو‌ارن در تلگرام است. هر ضربه NRX استخراج می‌کند — موجودی، ارتقاها و رتبه‌ات برای همیشه ذخیره می‌شود.',ab2t:'🚀 چرا همین حالا؟',ab2:'ماینرهای اولیه همیشه بیشترین سود را می‌برند. هرچه زودتر شروع کنی NRX بیشتری جمع می‌کنی و جایگاهت برای پاداش‌ها و ایردراپ برنامه‌ریزی‌شده محکم‌تر می‌شود.',ab3t:'🗺 نقشه راه',ab3:'✅ فاز ۱ — راه‌اندازی بازی<br>✅ فاز ۲ — ماموریت‌ها و رفرال<br>✅ فاز ۳ — جدول جهانی<br>🔜 فاز ۴ — رویدادهای کامیونیتی<br>🔜 فاز ۵ — توکن NRX روی TON + ایردراپ',ab4t:'💎 چشم‌انداز ما',ab4:'هدف ما تبدیل NeuronX به یک توکن واقعی کامیونیتی‌محور روی TON است. هرچه جامعه بزرگ‌تر شود، NeuronX بزرگ‌تر می‌شود — بازیکنان اولیه همیشه اول صف هستند. 🔥',ab5t:'🌐 لینک‌های رسمی',tNoEnergy:'انرژی کافی نیست! کمی صبر کن ⚡',tNoNRX:'NRX کافی نداری!',tUpgraded:'ارتقا یافت! 🎉',tEnergyFull:'انرژی همین الان پر است!',tRecharged:'انرژی کامل شارژ شد! ⚡',tAdSkip:'تبلیغ رد شد — این بار پاداشی نیست',tCopied:'لینک کپی شد! 📋',tNotJoined:'هنوز عضو نشده‌ای!',tVerifyFail:'تأیید نشد — دوباره تلاش کن',tNetErr:'خطای شبکه — دوباره تلاش کن',tWelcome:'خوش آمدی',tDailyReset:'ریست روزانه! سطح ارتقاها به ۱ برگشت 🌅',tEnterName:'یک نام وارد کن',chooseName:'نام کاربری‌ات را انتخاب کن',savePlay:'ذخیره و بازی',namePh:'نامت را بنویس...',shareText:'🪙 با من در NeuronX بازی کن — با ضربه NRX بگیر!',openTg:'بازی را داخل تلگرام باز کن!',prize:'جایزه',prizeNote:'🎁 جوایز به‌صورت خودکار اول هر ماه میلادی واریز می‌شود',prizeIn:'تا واریز جوایز بعدی',giftOpen:'باز کن!',giftWait:'هنوز آماده نیست — تایمر را ببین ⏳',tabMini:'مینی‌گیم',tabNFT:'NFT',tabWallet:'کیف پول',soon:'به‌زودی',soonMini:'مینی‌گیم‌های جذاب با جایزه NRX در راه است!',soonNFT:'کالکشن اختصاصی NFT بازی NeuronX به‌زودی می‌آید!',soonWallet:'اتصال کیف پول TON و برداشت — همراه با عرضه توکن می‌آید!',miniTitle:'🕹 مینی‌گیم‌ها',moreGames:'🎮 بازی‌های بیشتر — به‌زودی',spin:'بچرخون',spinAd:'📺 تبلیغ ببین → ۳ چرخش',spinWaitBtn:'⏳ بعداً برگرد',spinGranted:'🎡 ۳ چرخش اضافه شد!',day:'روز',wTitle:'⚛️ به NeuronX خوش آمدی!',w1:'👆 روی سکه بزن — هر ضربه NRX استخراج می‌کند',w2:'📋 ماموریت‌ها و دعوت دوستان: هر نفر ۱۵۰+',w3:'🎡 هر ۶ ساعت گردونه شانس را بچرخان',w4:'🏆 ۳۰ نفر برتر ماهانه ۹۵هزار NRX می‌برند · توکن روی TON در راه است',wBtn:'شروع استخراج 🚀',dcTitle:'📅 چلنج روزانه',mgArcade:'🎮 آرکید',mgFree:'بازی رایگان',mgCap:'سقف جایزه امروز پر شد',mgPlaying:'در حال بازی',mgLeft:'جایزه باقیمانده امروز'},
+  ru:{tabGame:'Игра',tabTasks:'Задания',tabRank:'Рейтинг',tabAbout:'О нас',balance:'Ваш баланс',progress:'Прогресс уровня',maxLevel:'Макс. уровень!',level:'Уровень',hint:'Тапай по монете и зарабатывай NRX',multitap:'Мультитап',energyLimit:'Лимит энергии',refill:'Заряд энергии',fullRecharge:'Полный заряд',watchAd:'📺 Смотреть рекламу',resetNote:'Уровни улучшений сбрасываются каждые 24 ч · Сброс через',tasksTitle:'📋 Задания — получай NRX',taskChannel:'📢 Подпишись на канал',taskGroup:'💬 Вступи в группу',taskInsta:'📸 Подпишись в Instagram',join:'Вступить',follow:'Подписаться',check:'Проверить ✓',done:'✅ Готово',inviteTitle:'👥 Пригласи друзей',invited:'Друзей приглашено',earned:'NRX заработано',share:'📤 Поделиться ссылкой',copy:'📋 Копировать',refHint:'+150 NRX за каждого друга — без лимита! 🚀',rankTitle:'🏆 Таблица лидеров',rankUpd:'🔄 Таблица обновляется каждые 24 часа',yourRank:'Ваш ранг',totalPlayers:'Всего игроков',loading:'Загрузка…',noPlayers:'Пока нет игроков',rankFail:'Ошибка загрузки — попробуйте ещё раз',rankTg:'Откройте игру в Telegram, чтобы увидеть рейтинг',aboutTitle:'ℹ️ О NeuronX',ab1t:'⚛️ Что такое NeuronX?',ab1:'NeuronX (NRX) — tap-to-earn игра в Telegram. Каждый тап добывает NRX — баланс, улучшения и ранг сохраняются навсегда.',ab2t:'🚀 Почему сейчас?',ab2:'Ранние майнеры всегда выигрывают больше. Чем раньше начнёшь, тем больше NRX накопишь — и тем прочнее твоя позиция для будущих наград и запланированного аирдропа.',ab3t:'🗺 Дорожная карта',ab3:'✅ Фаза 1 — Запуск игры<br>✅ Фаза 2 — Задания и рефералы<br>✅ Фаза 3 — Мировой рейтинг<br>🔜 Фаза 4 — Ивенты сообщества<br>🔜 Фаза 5 — Токен NRX на TON + аирдроп',ab4t:'💎 Наше видение',ab4:'Мы строим NeuronX как настоящий комьюнити-токен на TON. Чем больше сообщество — тем больше NeuronX. Ранние игроки всегда первые в очереди. 🔥',ab5t:'🌐 Официальные ссылки',tNoEnergy:'Недостаточно энергии! Подожди ⚡',tNoNRX:'Недостаточно NRX!',tUpgraded:'улучшено! 🎉',tEnergyFull:'Энергия уже полная!',tRecharged:'Энергия полностью заряжена! ⚡',tAdSkip:'Реклама пропущена — награды нет',tCopied:'Ссылка скопирована! 📋',tNotJoined:'Ты ещё не вступил!',tVerifyFail:'Не удалось проверить — попробуй ещё',tNetErr:'Ошибка сети — попробуй ещё',tWelcome:'Добро пожаловать',tDailyReset:'Ежедневный сброс! Уровни снова 1 🌅',tEnterName:'Введите имя',chooseName:'Выберите имя',savePlay:'Сохранить и играть',namePh:'Ваше имя...',shareText:'🪙 Играй со мной в NeuronX — тапай и зарабатывай NRX!',openTg:'Откройте игру в Telegram!',prize:'Приз',prizeNote:'🎁 Призы начисляются автоматически 1-го числа каждого месяца',prizeIn:'До следующей выплаты призов',giftOpen:'ОТКРОЙ!',giftWait:'Ещё не готово — смотри таймер ⏳',tabMini:'Мини-игры',tabNFT:'NFT',tabWallet:'Кошелёк',soon:'Скоро',soonMini:'Весёлые мини-игры с наградами NRX уже в пути!',soonNFT:'Эксклюзивная NFT-коллекция NeuronX скоро появится!',soonWallet:'Подключение TON-кошелька и вывод — вместе с запуском токена!',miniTitle:'🕹 Мини-игры',moreGames:'🎮 Больше игр — скоро',spin:'КРУТИТЬ',spinAd:'📺 Реклама → 3 вращения',spinWaitBtn:'⏳ Возвращайся позже',spinGranted:'🎡 +3 вращения!',day:'День',wTitle:'⚛️ Добро пожаловать в NeuronX!',w1:'👆 Тапай по монете — каждый тап добывает NRX',w2:'📋 Задания и друзья: +150 за каждого',w3:'🎡 Крути колесо удачи каждые 6 часов',w4:'🏆 Топ-30 делят 95 000 NRX ежемесячно · Токен на TON скоро',wBtn:'Начать майнинг 🚀',dcTitle:'📅 Ежедневный челлендж',mgArcade:'🎮 Аркада',mgFree:'Бесплатные игры',mgCap:'Дневной лимит наград исчерпан',mgPlaying:'играют сейчас',mgLeft:'Осталось наград на сегодня'},
+  es:{tabGame:'Juego',tabTasks:'Tareas',tabRank:'Ranking',tabAbout:'Info',balance:'Tu saldo',progress:'Progreso de nivel',maxLevel:'¡Nivel máximo!',level:'Nivel',hint:'Toca la moneda para ganar NRX',multitap:'Multitap',energyLimit:'Límite de energía',refill:'Recargar energía',fullRecharge:'Recarga completa',watchAd:'📺 Ver anuncio',resetNote:'Las mejoras se reinician cada 24 h · Reinicio en',tasksTitle:'📋 Tareas — Gana NRX',taskChannel:'📢 Únete al canal',taskGroup:'💬 Únete al grupo',taskInsta:'📸 Síguenos en Instagram',join:'Unirse',follow:'Seguir',check:'Verificar ✓',done:'✅ Hecho',inviteTitle:'👥 Invita amigos',invited:'Amigos invitados',earned:'NRX ganados',share:'📤 Compartir enlace',copy:'📋 Copiar enlace',refHint:'¡+150 NRX por cada amigo — sin límite! 🚀',rankTitle:'🏆 Clasificación',rankUpd:'🔄 La clasificación se actualiza cada 24 horas',yourRank:'Tu puesto',totalPlayers:'Jugadores totales',loading:'Cargando…',noPlayers:'Aún no hay jugadores',rankFail:'Error al cargar — inténtalo de nuevo',rankTg:'Abre el juego en Telegram para ver el ranking',aboutTitle:'ℹ️ Sobre NeuronX',ab1t:'⚛️ ¿Qué es NeuronX?',ab1:'NeuronX (NRX) es un juego tap-to-earn en Telegram. Cada toque mina NRX: tu saldo, mejoras y rango se guardan para siempre.',ab2t:'🚀 ¿Por qué ahora?',ab2:'Los mineros tempranos siempre ganan más. Cuanto antes empieces, más NRX acumulas y aseguras tu posición para futuras recompensas y el airdrop planeado.',ab3t:'🗺 Hoja de ruta',ab3:'✅ Fase 1 — Lanzamiento<br>✅ Fase 2 — Tareas y referidos<br>✅ Fase 3 — Ranking global<br>🔜 Fase 4 — Eventos<br>🔜 Fase 5 — Token NRX en TON + airdrop',ab4t:'💎 Nuestra visión',ab4:'Construimos NeuronX para ser un token comunitario real en TON. Cuanto más crece la comunidad, más grande es NeuronX — los primeros siempre van primero. 🔥',ab5t:'🌐 Enlaces oficiales',tNoEnergy:'¡Sin energía! Espera un momento ⚡',tNoNRX:'¡NRX insuficiente!',tUpgraded:'¡mejorado! 🎉',tEnergyFull:'¡La energía ya está llena!',tRecharged:'¡Energía recargada! ⚡',tAdSkip:'Anuncio omitido — sin recompensa',tCopied:'¡Enlace copiado! 📋',tNotJoined:'¡Aún no te has unido!',tVerifyFail:'No se pudo verificar — reintenta',tNetErr:'Error de red — reintenta',tWelcome:'Bienvenido',tDailyReset:'¡Reinicio diario! Mejoras a nivel 1 🌅',tEnterName:'Escribe un nombre',chooseName:'Elige tu nombre',savePlay:'Guardar y jugar',namePh:'Tu nombre...',shareText:'🪙 ¡Juega conmigo a NeuronX — toca y gana NRX!',openTg:'¡Abre el juego en Telegram!',prize:'Premio',prizeNote:'🎁 Los premios se acreditan automáticamente el día 1 de cada mes',prizeIn:'Hasta el próximo pago de premios',giftOpen:'¡ABRIR!',giftWait:'Aún no está listo — mira el temporizador ⏳',tabMini:'Minijuegos',tabNFT:'NFT',tabWallet:'Billetera',soon:'Próximamente',soonMini:'¡Minijuegos divertidos con premios NRX en camino!',soonNFT:'¡La colección NFT exclusiva de NeuronX está llegando!',soonWallet:'Conecta tu billetera TON y retira — llegará con el lanzamiento del token.',miniTitle:'🕹 Minijuegos',moreGames:'🎮 Más juegos — pronto',spin:'GIRAR',spinAd:'📺 Ver anuncio → 3 giros',spinWaitBtn:'⏳ Vuelve más tarde',spinGranted:'🎡 ¡+3 giros!',day:'Día',wTitle:'⚛️ ¡Bienvenido a NeuronX!',w1:'👆 Toca la moneda — cada toque mina NRX',w2:'📋 Tareas e invita amigos: +150 por cada uno',w3:'🎡 Gira la ruleta cada 6 horas',w4:'🏆 El top 30 comparte 95.000 NRX al mes · Token en TON pronto',wBtn:'Empezar a minar 🚀',dcTitle:'📅 Desafío diario',mgArcade:'🎮 Arcade',mgFree:'Partidas gratis',mgCap:'Límite diario alcanzado',mgPlaying:'jugando ahora',mgLeft:'Recompensa restante hoy'},
+  pt:{tabGame:'Jogo',tabTasks:'Tarefas',tabRank:'Ranking',tabAbout:'Sobre',balance:'Seu saldo',progress:'Progresso de nível',maxLevel:'Nível máximo!',level:'Nível',hint:'Toque na moeda para ganhar NRX',multitap:'Multitap',energyLimit:'Limite de energia',refill:'Recarregar energia',fullRecharge:'Recarga completa',watchAd:'📺 Ver anúncio',resetNote:'Melhorias reiniciam a cada 24 h · Reinício em',tasksTitle:'📋 Tarefas — Ganhe NRX',taskChannel:'📢 Entre no canal',taskGroup:'💬 Entre no grupo',taskInsta:'📸 Siga no Instagram',join:'Entrar',follow:'Seguir',check:'Verificar ✓',done:'✅ Feito',inviteTitle:'👥 Convide amigos',invited:'Amigos convidados',earned:'NRX ganhos',share:'📤 Compartilhar link',copy:'📋 Copiar link',refHint:'+150 NRX por cada amigo — sem limite! 🚀',rankTitle:'🏆 Classificação',rankUpd:'🔄 O ranking é atualizado a cada 24 horas',yourRank:'Sua posição',totalPlayers:'Total de jogadores',loading:'Carregando…',noPlayers:'Ainda sem jogadores',rankFail:'Falha ao carregar — tente de novo',rankTg:'Abra o jogo no Telegram para ver o ranking',aboutTitle:'ℹ️ Sobre o NeuronX',ab1t:'⚛️ O que é NeuronX?',ab1:'NeuronX (NRX) é um jogo tap-to-earn no Telegram. Cada toque minera NRX — saldo, melhorias e ranking ficam salvos para sempre.',ab2t:'🚀 Por que agora?',ab2:'Mineradores iniciais sempre ganham mais. Quanto antes começar, mais NRX acumula — e garante sua posição para recompensas futuras e o airdrop planejado.',ab3t:'🗺 Roteiro',ab3:'✅ Fase 1 — Lançamento<br>✅ Fase 2 — Tarefas e indicações<br>✅ Fase 3 — Ranking global<br>🔜 Fase 4 — Eventos<br>🔜 Fase 5 — Token NRX na TON + airdrop',ab4t:'💎 Nossa visão',ab4:'Estamos construindo o NeuronX para ser um token comunitário real na TON. Quanto maior a comunidade, maior o NeuronX — os primeiros sempre saem na frente. 🔥',ab5t:'🌐 Links oficiais',tNoEnergy:'Sem energia! Aguarde ⚡',tNoNRX:'NRX insuficiente!',tUpgraded:'melhorado! 🎉',tEnergyFull:'A energia já está cheia!',tRecharged:'Energia recarregada! ⚡',tAdSkip:'Anúncio pulado — sem recompensa',tCopied:'Link copiado! 📋',tNotJoined:'Você ainda não entrou!',tVerifyFail:'Não foi possível verificar — tente de novo',tNetErr:'Erro de rede — tente de novo',tWelcome:'Bem-vindo',tDailyReset:'Reinício diário! Melhorias no nível 1 🌅',tEnterName:'Digite um nome',chooseName:'Escolha seu nome',savePlay:'Salvar e jogar',namePh:'Seu nome...',shareText:'🪙 Jogue NeuronX comigo — toque e ganhe NRX!',openTg:'Abra o jogo no Telegram!',prize:'Prêmio',prizeNote:'🎁 Os prêmios são creditados automaticamente no dia 1 de cada mês',prizeIn:'Até o próximo pagamento de prêmios',giftOpen:'ABRIR!',giftWait:'Ainda não está pronto — veja o cronômetro ⏳',tabMini:'Minijogos',tabNFT:'NFT',tabWallet:'Carteira',soon:'Em breve',soonMini:'Minijogos divertidos com prêmios NRX estão a caminho!',soonNFT:'A coleção NFT exclusiva do NeuronX está chegando!',soonWallet:'Conecte sua carteira TON e saque — chega com o lançamento do token.',miniTitle:'🕹 Minijogos',moreGames:'🎮 Mais jogos — em breve',spin:'GIRAR',spinAd:'📺 Ver anúncio → 3 giros',spinWaitBtn:'⏳ Volte mais tarde',spinGranted:'🎡 +3 giros!',day:'Dia',wTitle:'⚛️ Bem-vindo ao NeuronX!',w1:'👆 Toque na moeda — cada toque minera NRX',w2:'📋 Tarefas e convide amigos: +150 cada',w3:'🎡 Gire a roleta a cada 6 horas',w4:'🏆 Top 30 divide 95.000 NRX por mês · Token na TON em breve',wBtn:'Começar a minerar 🚀',dcTitle:'📅 Desafio diário',mgArcade:'🎮 Arcade',mgFree:'Jogos grátis',mgCap:'Limite diário atingido',mgPlaying:'jogando agora',mgLeft:'Recompensa restante hoje'},
+  de:{tabGame:'Spiel',tabTasks:'Aufgaben',tabRank:'Rangliste',tabAbout:'Info',balance:'Dein Guthaben',progress:'Level-Fortschritt',maxLevel:'Max. Level!',level:'Level',hint:'Tippe auf die Münze und verdiene NRX',multitap:'Multitap',energyLimit:'Energielimit',refill:'Energie aufladen',fullRecharge:'Volle Aufladung',watchAd:'📺 Werbung ansehen',resetNote:'Upgrades werden alle 24 Std. zurückgesetzt · Reset in',tasksTitle:'📋 Aufgaben — NRX verdienen',taskChannel:'📢 Kanal beitreten',taskGroup:'💬 Gruppe beitreten',taskInsta:'📸 Auf Instagram folgen',join:'Beitreten',follow:'Folgen',check:'Prüfen ✓',done:'✅ Erledigt',inviteTitle:'👥 Freunde einladen',invited:'Eingeladene Freunde',earned:'Verdiente NRX',share:'📤 Link teilen',copy:'📋 Link kopieren',refHint:'+150 NRX für jeden Freund — unbegrenzt! 🚀',rankTitle:'🏆 Rangliste',rankUpd:'🔄 Die Rangliste wird alle 24 Stunden aktualisiert',yourRank:'Dein Rang',totalPlayers:'Spieler gesamt',loading:'Laden…',noPlayers:'Noch keine Spieler',rankFail:'Laden fehlgeschlagen — erneut versuchen',rankTg:'Öffne das Spiel in Telegram für die Rangliste',aboutTitle:'ℹ️ Über NeuronX',ab1t:'⚛️ Was ist NeuronX?',ab1:'NeuronX (NRX) ist ein Tap-to-Earn-Spiel auf Telegram. Jeder Tap schürft NRX — Guthaben, Upgrades und Rang werden dauerhaft gespeichert.',ab2t:'🚀 Warum jetzt?',ab2:'Frühe Miner gewinnen immer am meisten. Je früher du startest, desto mehr NRX sammelst du — und sicherst deine Position für künftige Belohnungen und den geplanten Airdrop.',ab3t:'🗺 Roadmap',ab3:'✅ Phase 1 — Spielstart<br>✅ Phase 2 — Aufgaben & Referrals<br>✅ Phase 3 — Globale Rangliste<br>🔜 Phase 4 — Community-Events<br>🔜 Phase 5 — NRX-Token auf TON + Airdrop',ab4t:'💎 Unsere Vision',ab4:'Wir bauen NeuronX zu einem echten Community-Token auf TON. Je größer die Community, desto größer NeuronX — frühe Spieler stehen immer ganz vorne. 🔥',ab5t:'🌐 Offizielle Links',tNoEnergy:'Nicht genug Energie! Kurz warten ⚡',tNoNRX:'Nicht genug NRX!',tUpgraded:'verbessert! 🎉',tEnergyFull:'Energie ist schon voll!',tRecharged:'Energie voll aufgeladen! ⚡',tAdSkip:'Werbung übersprungen — keine Belohnung',tCopied:'Link kopiert! 📋',tNotJoined:'Du bist noch nicht beigetreten!',tVerifyFail:'Prüfung fehlgeschlagen — erneut versuchen',tNetErr:'Netzwerkfehler — erneut versuchen',tWelcome:'Willkommen',tDailyReset:'Täglicher Reset! Upgrades wieder auf 1 🌅',tEnterName:'Bitte Namen eingeben',chooseName:'Wähle deinen Namen',savePlay:'Speichern & spielen',namePh:'Dein Name...',shareText:'🪙 Spiel NeuronX mit mir — tippen und NRX verdienen!',openTg:'Öffne das Spiel in Telegram!',prize:'Preis',prizeNote:'🎁 Preise werden automatisch am 1. jedes Monats gutgeschrieben',prizeIn:'Bis zur nächsten Preisvergabe',giftOpen:'ÖFFNEN!',giftWait:'Noch nicht bereit — sieh auf den Timer ⏳',tabMini:'Minispiele',tabNFT:'NFT',tabWallet:'Wallet',soon:'Bald verfügbar',soonMini:'Spaßige Minispiele mit NRX-Belohnungen sind unterwegs!',soonNFT:'Die exklusive NeuronX-NFT-Kollektion kommt bald!',soonWallet:'TON-Wallet verbinden und auszahlen — kommt mit dem Token-Launch!',miniTitle:'🕹 Minispiele',moreGames:'🎮 Mehr Spiele — bald',spin:'DREHEN',spinAd:'📺 Werbung → 3 Drehs',spinWaitBtn:'⏳ Komm später wieder',spinGranted:'🎡 +3 Drehs!',day:'Tag',wTitle:'⚛️ Willkommen bei NeuronX!',w1:'👆 Tippe auf die Münze — jeder Tap schürft NRX',w2:'📋 Aufgaben & Freunde einladen: je +150',w3:'🎡 Dreh das Glücksrad alle 6 Stunden',w4:'🏆 Top 30 teilen monatlich 95.000 NRX · Token auf TON geplant',wBtn:'Mining starten 🚀',dcTitle:'📅 Tages-Challenge',mgArcade:'🎮 Arcade',mgFree:'Gratis-Spiele',mgCap:'Tageslimit erreicht',mgPlaying:'spielen gerade',mgLeft:'Heute übrige Belohnung'},
+  fr:{tabGame:'Jeu',tabTasks:'Tâches',tabRank:'Classement',tabAbout:'À propos',balance:'Votre solde',progress:'Progression',maxLevel:'Niveau max !',level:'Niveau',hint:'Tape la pièce pour gagner des NRX',multitap:'Multitap',energyLimit:"Limite d'énergie",refill:'Recharger',fullRecharge:'Recharge complète',watchAd:'📺 Voir une pub',resetNote:'Les améliorations se réinitialisent toutes les 24 h · Reset dans',tasksTitle:'📋 Tâches — Gagne des NRX',taskChannel:'📢 Rejoins la chaîne',taskGroup:'💬 Rejoins le groupe',taskInsta:'📸 Suis-nous sur Instagram',join:'Rejoindre',follow:'Suivre',check:'Vérifier ✓',done:'✅ Fait',inviteTitle:'👥 Invite des amis',invited:'Amis invités',earned:'NRX gagnés',share:'📤 Partager le lien',copy:'📋 Copier le lien',refHint:'+150 NRX par ami — illimité ! 🚀',rankTitle:'🏆 Classement',rankUpd:'🔄 Le classement est mis à jour toutes les 24 heures',yourRank:'Ton rang',totalPlayers:'Joueurs au total',loading:'Chargement…',noPlayers:'Pas encore de joueurs',rankFail:'Échec du chargement — réessaie',rankTg:'Ouvre le jeu dans Telegram pour voir le classement',aboutTitle:'ℹ️ À propos de NeuronX',ab1t:"⚛️ C'est quoi NeuronX ?",ab1:'NeuronX (NRX) est un jeu tap-to-earn sur Telegram. Chaque tap mine des NRX — solde, améliorations et rang sont sauvegardés pour toujours.',ab2t:'🚀 Pourquoi maintenant ?',ab2:"Les premiers mineurs gagnent toujours le plus. Plus tu commences tôt, plus tu accumules de NRX — et tu sécurises ta place pour les futures récompenses et l'airdrop prévu.",ab3t:'🗺 Feuille de route',ab3:'✅ Phase 1 — Lancement<br>✅ Phase 2 — Tâches & parrainage<br>✅ Phase 3 — Classement mondial<br>🔜 Phase 4 — Événements<br>🔜 Phase 5 — Token NRX sur TON + airdrop',ab4t:'💎 Notre vision',ab4:'Nous construisons NeuronX pour devenir un vrai token communautaire sur TON. Plus la communauté grandit, plus NeuronX grandit — les premiers joueurs passent toujours en premier. 🔥',ab5t:'🌐 Liens officiels',tNoEnergy:"Pas assez d'énergie ! Attends ⚡",tNoNRX:'Pas assez de NRX !',tUpgraded:'amélioré ! 🎉',tEnergyFull:"L'énergie est déjà pleine !",tRecharged:'Énergie rechargée ! ⚡',tAdSkip:'Pub ignorée — pas de récompense',tCopied:'Lien copié ! 📋',tNotJoined:"Tu n'as pas encore rejoint !",tVerifyFail:'Vérification impossible — réessaie',tNetErr:'Erreur réseau — réessaie',tWelcome:'Bienvenue',tDailyReset:'Reset quotidien ! Améliorations au niveau 1 🌅',tEnterName:'Entre un nom',chooseName:'Choisis ton nom',savePlay:'Enregistrer & jouer',namePh:'Ton nom...',shareText:'🪙 Joue à NeuronX avec moi — tape et gagne des NRX !',openTg:'Ouvre le jeu dans Telegram !',prize:'Prix',prizeNote:'🎁 Les prix sont crédités automatiquement le 1er de chaque mois',prizeIn:'Avant le prochain versement des prix',giftOpen:'OUVRE !',giftWait:'Pas encore prêt — regarde le minuteur ⏳',tabMini:'Mini-jeux',tabNFT:'NFT',tabWallet:'Portefeuille',soon:'Bientôt',soonMini:'Des mini-jeux fun avec des récompenses NRX arrivent !',soonNFT:'La collection NFT exclusive NeuronX arrive !',soonWallet:'Connecte ton portefeuille TON et retire — avec le lancement du token !',miniTitle:'🕹 Mini-jeux',moreGames:'🎮 Plus de jeux — bientôt',spin:'TOURNER',spinAd:'📺 Pub → 3 tours',spinWaitBtn:'⏳ Reviens plus tard',spinGranted:'🎡 +3 tours !',day:'Jour',wTitle:'⚛️ Bienvenue sur NeuronX !',w1:'👆 Tape la pièce — chaque tap mine des NRX',w2:'📋 Tâches et amis : +150 chacun',w3:'🎡 Tourne la roue toutes les 6 heures',w4:'🏆 Le top 30 partage 95 000 NRX par mois · Token sur TON bientôt',wBtn:'Commencer à miner 🚀',dcTitle:'📅 Défi quotidien',mgArcade:'🎮 Arcade',mgFree:'Parties gratuites',mgCap:'Limite quotidienne atteinte',mgPlaying:'jouent maintenant',mgLeft:'Récompense restante aujourd’hui'},
+  nl:{tabGame:'Spel',tabTasks:'Taken',tabRank:'Ranglijst',tabAbout:'Over',balance:'Jouw saldo',progress:'Levelvoortgang',maxLevel:'Max level!',level:'Level',hint:'Tik op de munt en verdien NRX',multitap:'Multitap',energyLimit:'Energielimiet',refill:'Energie opladen',fullRecharge:'Volledig opladen',watchAd:'📺 Advertentie kijken',resetNote:'Upgrades resetten elke 24 uur · Reset over',tasksTitle:'📋 Taken — Verdien NRX',taskChannel:'📢 Word lid van het kanaal',taskGroup:'💬 Word lid van de groep',taskInsta:'📸 Volg ons op Instagram',join:'Lid worden',follow:'Volgen',check:'Controleer ✓',done:'✅ Klaar',inviteTitle:'👥 Nodig vrienden uit',invited:'Vrienden uitgenodigd',earned:'NRX verdiend',share:'📤 Deel uitnodigingslink',copy:'📋 Kopieer link',refHint:'+150 NRX per vriend — onbeperkt! 🚀',rankTitle:'🏆 Ranglijst',rankUpd:'🔄 De ranglijst wordt elke 24 uur bijgewerkt',yourRank:'Jouw rang',totalPlayers:'Totaal spelers',loading:'Laden…',noPlayers:'Nog geen spelers',rankFail:'Laden mislukt — probeer opnieuw',rankTg:'Open het spel in Telegram voor de ranglijst',aboutTitle:'ℹ️ Over NeuronX',ab1t:'⚛️ Wat is NeuronX?',ab1:'NeuronX (NRX) is een tap-to-earn game op Telegram. Elke tik mijnt NRX — je saldo, upgrades en rang worden voor altijd opgeslagen.',ab2t:'🚀 Waarom nu?',ab2:'Vroege miners winnen altijd het meest. Hoe eerder je begint, hoe meer NRX je verzamelt — en je verzekert je positie voor toekomstige beloningen en de geplande airdrop.',ab3t:'🗺 Roadmap',ab3:'✅ Fase 1 — Lancering<br>✅ Fase 2 — Taken & referrals<br>✅ Fase 3 — Wereldranglijst<br>🔜 Fase 4 — Community-events<br>🔜 Fase 5 — NRX-token op TON + airdrop',ab4t:'💎 Onze visie',ab4:'We bouwen NeuronX tot een echte community-token op TON. Hoe groter de community, hoe groter NeuronX — vroege spelers staan altijd vooraan. 🔥',ab5t:'🌐 Officiële links',tNoEnergy:'Niet genoeg energie! Even wachten ⚡',tNoNRX:'Niet genoeg NRX!',tUpgraded:'geüpgraded! 🎉',tEnergyFull:'Energie is al vol!',tRecharged:'Energie volledig opgeladen! ⚡',tAdSkip:'Advertentie overgeslagen — geen beloning',tCopied:'Link gekopieerd! 📋',tNotJoined:'Je bent nog geen lid!',tVerifyFail:'Verificatie mislukt — probeer opnieuw',tNetErr:'Netwerkfout — probeer opnieuw',tWelcome:'Welkom',tDailyReset:'Dagelijkse reset! Upgrades terug naar 1 🌅',tEnterName:'Voer een naam in',chooseName:'Kies je naam',savePlay:'Opslaan & spelen',namePh:'Jouw naam...',shareText:'🪙 Speel NeuronX met mij — tik en verdien NRX!',openTg:'Open het spel in Telegram!',prize:'Prijs',prizeNote:'🎁 Prijzen worden automatisch bijgeschreven op de 1e van elke maand',prizeIn:'Tot de volgende prijsuitreiking',giftOpen:'OPEN!',giftWait:'Nog niet klaar — kijk naar de timer ⏳',tabMini:'Minigames',tabNFT:'NFT',tabWallet:'Wallet',soon:'Binnenkort',soonMini:'Leuke minigames met NRX-beloningen komen eraan!',soonNFT:'De exclusieve NeuronX NFT-collectie komt eraan!',soonWallet:'Verbind je TON-wallet en neem op — komt met de tokenlancering!',miniTitle:'🕹 Minigames',moreGames:'🎮 Meer games — binnenkort',spin:'DRAAI',spinAd:'📺 Advertentie → 3 spins',spinWaitBtn:'⏳ Kom later terug',spinGranted:'🎡 +3 spins!',day:'Dag',wTitle:'⚛️ Welkom bij NeuronX!',w1:'👆 Tik op de munt — elke tik mijnt NRX',w2:'📋 Taken en vrienden uitnodigen: +150 elk',w3:'🎡 Draai het rad elke 6 uur',w4:'🏆 Top 30 deelt maandelijks 95.000 NRX · Token op TON gepland',wBtn:'Start met minen 🚀',dcTitle:'📅 Dagelijkse challenge',mgArcade:'🎮 Arcade',mgFree:'Gratis spellen',mgCap:'Dagelijkse limiet bereikt',mgPlaying:'spelen nu',mgLeft:'Dagelijkse beloning over'},
+  sv:{tabGame:'Spel',tabTasks:'Uppdrag',tabRank:'Topplista',tabAbout:'Om',balance:'Ditt saldo',progress:'Nivåframsteg',maxLevel:'Maxnivå!',level:'Nivå',hint:'Tryck på myntet och tjäna NRX',multitap:'Multitap',energyLimit:'Energigräns',refill:'Ladda energi',fullRecharge:'Full laddning',watchAd:'📺 Titta på annons',resetNote:'Uppgraderingar nollställs var 24:e timme · Nollställs om',tasksTitle:'📋 Uppdrag — Tjäna NRX',taskChannel:'📢 Gå med i kanalen',taskGroup:'💬 Gå med i gruppen',taskInsta:'📸 Följ oss på Instagram',join:'Gå med',follow:'Följ',check:'Kontrollera ✓',done:'✅ Klart',inviteTitle:'👥 Bjud in vänner',invited:'Inbjudna vänner',earned:'Intjänade NRX',share:'📤 Dela länk',copy:'📋 Kopiera länk',refHint:'+150 NRX per vän — obegränsat! 🚀',rankTitle:'🏆 Topplista',rankUpd:'🔄 Topplistan uppdateras var 24:e timme',yourRank:'Din placering',totalPlayers:'Totalt spelare',loading:'Laddar…',noPlayers:'Inga spelare än',rankFail:'Kunde inte ladda — försök igen',rankTg:'Öppna spelet i Telegram för att se topplistan',aboutTitle:'ℹ️ Om NeuronX',ab1t:'⚛️ Vad är NeuronX?',ab1:'NeuronX (NRX) är ett tap-to-earn-spel på Telegram. Varje tryck utvinner NRX — saldo, uppgraderingar och rang sparas för alltid.',ab2t:'🚀 Varför nu?',ab2:'Tidiga miners vinner alltid mest. Ju tidigare du börjar, desto mer NRX samlar du — och säkrar din plats för framtida belöningar och den planerade airdroppen.',ab3t:'🗺 Färdplan',ab3:'✅ Fas 1 — Lansering<br>✅ Fas 2 — Uppdrag & referrals<br>✅ Fas 3 — Global topplista<br>🔜 Fas 4 — Community-event<br>🔜 Fas 5 — NRX-token på TON + airdrop',ab4t:'💎 Vår vision',ab4:'Vi bygger NeuronX till en riktig community-token på TON. Ju större community, desto större NeuronX — tidiga spelare står alltid först. 🔥',ab5t:'🌐 Officiella länkar',tNoEnergy:'Inte tillräckligt med energi! Vänta ⚡',tNoNRX:'Inte tillräckligt med NRX!',tUpgraded:'uppgraderad! 🎉',tEnergyFull:'Energin är redan full!',tRecharged:'Energin fulladdad! ⚡',tAdSkip:'Annons hoppades över — ingen belöning',tCopied:'Länk kopierad! 📋',tNotJoined:'Du har inte gått med än!',tVerifyFail:'Kunde inte verifiera — försök igen',tNetErr:'Nätverksfel — försök igen',tWelcome:'Välkommen',tDailyReset:'Daglig nollställning! Uppgraderingar på nivå 1 🌅',tEnterName:'Ange ett namn',chooseName:'Välj ditt namn',savePlay:'Spara & spela',namePh:'Ditt namn...',shareText:'🪙 Spela NeuronX med mig — tryck och tjäna NRX!',openTg:'Öppna spelet i Telegram!',prize:'Pris',prizeNote:'🎁 Priser delas ut automatiskt den 1:a varje månad',prizeIn:'Till nästa prisutdelning',giftOpen:'ÖPPNA!',giftWait:'Inte redo än — kolla timern ⏳',tabMini:'Minispel',tabNFT:'NFT',tabWallet:'Plånbok',soon:'Snart',soonMini:'Roliga minispel med NRX-belöningar är på väg!',soonNFT:'Den exklusiva NeuronX NFT-kollektionen kommer snart!',soonWallet:'Anslut din TON-plånbok och ta ut — kommer med tokenlanseringen!',miniTitle:'🕹 Minispel',moreGames:'🎮 Fler spel — snart',spin:'SNURRA',spinAd:'📺 Annons → 3 snurr',spinWaitBtn:'⏳ Kom tillbaka senare',spinGranted:'🎡 +3 snurr!',day:'Dag',wTitle:'⚛️ Välkommen till NeuronX!',w1:'👆 Tryck på myntet — varje tryck utvinner NRX',w2:'📋 Uppdrag och bjud in vänner: +150 vardera',w3:'🎡 Snurra lyckohjulet var 6:e timme',w4:'🏆 Topp 30 delar 95 000 NRX varje månad · Token på TON planeras',wBtn:'Börja mina 🚀',dcTitle:'📅 Daglig utmaning',mgArcade:'🎮 Arkad',mgFree:'Gratisspel',mgCap:'Dagsgräns nådd',mgPlaying:'spelar nu',mgLeft:'Dagens belöning kvar'},
+  zh:{tabGame:'游戏',tabTasks:'任务',tabRank:'排行榜',tabAbout:'关于',balance:'你的余额',progress:'等级进度',maxLevel:'已达最高等级！',level:'等级',hint:'点击金币赚取 NRX',multitap:'多重点击',energyLimit:'能量上限',refill:'补充能量',fullRecharge:'完全充能',watchAd:'📺 观看广告',resetNote:'升级每24小时重置 · 重置倒计时',tasksTitle:'📋 任务 — 赚取 NRX',taskChannel:'📢 加入频道',taskGroup:'💬 加入群组',taskInsta:'📸 关注 Instagram',join:'加入',follow:'关注',check:'验证 ✓',done:'✅ 已完成',inviteTitle:'👥 邀请好友',invited:'已邀请好友',earned:'已赚取 NRX',share:'📤 分享邀请链接',copy:'📋 复制链接',refHint:'每邀请一位好友 +150 NRX — 无上限！🚀',rankTitle:'🏆 排行榜',rankUpd:'🔄 排行榜每24小时更新一次',yourRank:'你的排名',totalPlayers:'玩家总数',loading:'加载中…',noPlayers:'暂无玩家',rankFail:'加载失败 — 请重试',rankTg:'请在 Telegram 中打开游戏查看排行榜',aboutTitle:'ℹ️ 关于 NeuronX',ab1t:'⚛️ NeuronX 是什么？',ab1:'NeuronX (NRX) 是 Telegram 上的点击赚币游戏。每次点击都在挖 NRX — 你的余额、升级和排名将永久保存。',ab2t:'🚀 为什么现在开始？',ab2:'早期矿工总是收获最多。越早开始，积累的 NRX 越多 — 也为未来奖励和计划中的空投锁定你的位置。',ab3t:'🗺 路线图',ab3:'✅ 阶段1 — 游戏上线<br>✅ 阶段2 — 任务与邀请<br>✅ 阶段3 — 全球排行榜<br>🔜 阶段4 — 社区活动<br>🔜 阶段5 — NRX 代币上线 TON + 空投',ab4t:'💎 我们的愿景',ab4:'我们致力于让 NeuronX 成为 TON 上真正的社区代币。社区越大，NeuronX 越强 — 早期玩家永远排在最前。🔥',ab5t:'🌐 官方链接',tNoEnergy:'能量不足！稍等片刻 ⚡',tNoNRX:'NRX 不足！',tUpgraded:'升级成功！🎉',tEnergyFull:'能量已满！',tRecharged:'能量已充满！⚡',tAdSkip:'广告被跳过 — 无奖励',tCopied:'链接已复制！📋',tNotJoined:'你还没有加入！',tVerifyFail:'验证失败 — 请重试',tNetErr:'网络错误 — 请重试',tWelcome:'欢迎',tDailyReset:'每日重置！升级回到1级 🌅',tEnterName:'请输入名字',chooseName:'选择你的用户名',savePlay:'保存并开始',namePh:'你的名字...',shareText:'🪙 和我一起玩 NeuronX — 点击赚 NRX！',openTg:'请在 Telegram 中打开游戏！',prize:'奖励',prizeNote:'🎁 奖励在每月1日自动发放',prizeIn:'距离下次奖励发放',giftOpen:'开启！',giftWait:'还没准备好 — 看看倒计时 ⏳',tabMini:'小游戏',tabNFT:'NFT',tabWallet:'钱包',soon:'即将推出',soonMini:'有 NRX 奖励的趣味小游戏即将上线！',soonNFT:'NeuronX 专属 NFT 系列即将到来！',soonWallet:'连接 TON 钱包并提现 — 随代币发布推出！',miniTitle:'🕹 小游戏',moreGames:'🎮 更多游戏 — 敬请期待',spin:'旋转',spinAd:'📺 看广告 → 3次旋转',spinWaitBtn:'⏳ 稍后再来',spinGranted:'🎡 +3次旋转！',day:'Day',wTitle:'⚛️ 欢迎来到 NeuronX！',w1:'👆 点击金币 — 每次点击都在挖 NRX',w2:'📋 完成任务并邀请好友：每人 +150',w3:'🎡 每6小时转一次幸运转盘',w4:'🏆 前30名每月分享9.5万 NRX · TON 代币即将推出',wBtn:'开始挖矿 🚀',dcTitle:'📅 每日挑战',mgArcade:'🎮 街机游戏',mgFree:'免费次数',mgCap:'今日奖励已达上限',mgPlaying:'正在游玩',mgLeft:'今日剩余奖励'}
   };
   let LANG = 'en';
   const t = k => (I18N[LANG] && I18N[LANG][k]) || I18N.en[k] || k;
@@ -1461,16 +1607,16 @@
     set('lblTaskGroup','taskGroup'); set('lblTaskInsta','taskInsta');
     set('lblInviteTitle','inviteTitle'); set('lblInvited','invited'); set('lblEarned','earned');
     set('shareInvite','share'); set('copyInvite','copy'); set('lblRefHint','refHint');
-    set('lblRankTitle','rankTitle'); set('lblYourRank','yourRank'); set('lblTotalPlayers','totalPlayers');
+    set('lblRankTitle','rankTitle'); set('lblRankUpd','rankUpd'); set('lblYourRank','yourRank'); set('lblTotalPlayers','totalPlayers');
     set('lblPrizeNote','prizeNote'); set('lblPrizeIn','prizeIn');
     set('lblAboutTitle','aboutTitle');
     seth('ab1t','ab1t'); seth('ab1b','ab1'); seth('ab2t','ab2t'); seth('ab2b','ab2');
     seth('ab3t','ab3t'); seth('ab3b','ab3'); seth('ab4t','ab4t'); seth('ab4b','ab4'); seth('ab5t','ab5t');
-    set('lblMiniTitle','miniTitle'); set('lblMoreGames','moreGames');
-    set('soonTag1','soon'); set('soonTag2','soon'); set('soonTag3','soon');
+    set('lblMiniTitle','miniTitle');
     if (typeof renderSpin === 'function') { try { renderSpin(); } catch (e) {} }
     set('soonNFTT','soon'); set('soonNFTD','soonNFT');
     set('soonWalletT','soon'); set('soonWalletD','soonWallet');
+    set('lblArcade','mgArcade'); set('mgFreeLbl','mgPlaying'); set('mgLeftLbl','mgLeft');
     set('wTitle','wTitle'); set('w1','w1'); set('w2','w2'); set('w3','w3'); set('w4','w4'); set('wBtn','wBtn'); set('dcTitle','dcTitle');
     set('lblChooseName','chooseName'); set('nameSave','savePlay');
     $('nameInput').placeholder = t('namePh');
@@ -1515,9 +1661,9 @@
 
   // ---------- Tasks ----------
   const SOCIAL = {
-    channel:   { url: 'https://t.me/neuronXcoin',                reward: 300 },
-    group:     { url: 'https://t.me/neuronX_coin',               reward: 400 },
-    instagram: { url: 'https://www.instagram.com/neuronX_coin',  reward: 500 },
+    channel:   { url: 'https://t.me/neuronXcoin',                reward: 50 },
+    group:     { url: 'https://t.me/neuronX_coin',               reward: 75 },
+    instagram: { url: 'https://www.instagram.com/neuronX_coin',  reward: 100 },
   };
   const BOT_LINK = 'https://t.me/NeuronXminerbot/Play';
   let tasksDone = { channel: false, group: false, instagram: false };
@@ -1577,9 +1723,9 @@
     $('refEarned').textContent = fmt(refEarned);
   }
   $('copyInvite').addEventListener('click', () => {
-    const t = $('inviteLink').textContent;
-    if (navigator.clipboard) navigator.clipboard.writeText(t).then(() => toast(t('tCopied')), () => toast(t));
-    else toast(t);
+    const link = $('inviteLink').textContent;
+    if (navigator.clipboard) navigator.clipboard.writeText(link).then(() => toast(t('tCopied')), () => toast(link));
+    else toast(link);
   });
   $('shareInvite').addEventListener('click', () => {
     const link = $('inviteLink').textContent;
@@ -1634,7 +1780,7 @@
 
   // ---------- Hourly gift (watch ad -> +50 NRX) ----------
   const GIFT_MS = 60 * 60 * 1000;
-  const GIFT_REWARD = 25;
+  const GIFT_REWARD = 50;
   let giftNext = Date.now() + GIFT_MS;
 
   function coinRain() {
@@ -1675,6 +1821,492 @@
       toast('+' + GIFT_REWARD + ' NRX! 🎁');
     });
   });
+
+  // ---------- Arcade: 4 mini games ----------
+  const ARC_FREE = 4, ARC_CAP = 300, ARC_AD_PLAYS = 3; // 4 free, then 1 ad = 3 more
+  const ARC_DIV = { c: 3, s: 2, f: 3, b: 4 }; // score-to-NRX divisors
+  const dayBucket = () => Math.floor(Date.now() / 86400000);
+  function arcState() {
+    if (!state.arcade || typeof state.arcade !== 'object') state.arcade = {};
+    const a = state.arcade;
+    if (a.day !== dayBucket()) { a.day = dayBucket(); a.earned = 0; a.plays = 0; a.bonus = 0; }
+    if (!a.best) a.best = {};
+    return a;
+  }
+  function arcLeft() {
+    const a = arcState();
+    return Math.max(0, ARC_FREE + (a.bonus || 0) - (a.plays || 0));
+  }
+  function arcRefresh() {
+    const a = arcState();
+    const el = $('mgFreeN');
+    if (el) el.textContent = Math.max(0, ARC_CAP - (a.earned || 0));
+  }
+
+  // live "playing now" counters — drift naturally, busier in the evening
+  const PC_IDS = { s: 'pcS', f: 'pcF', b: 'pcB', c: 'pcC' };
+  const pcBase = { s: 42, f: 34, b: 24, c: 28 };
+  const pcNow = {};
+  function pcTick() {
+    const hr = new Date().getHours();
+    const busy = 0.95 + 0.3 * Math.sin((hr - 4) / 24 * Math.PI * 2); // quiet at night, busy evenings
+    let total = 0;
+    for (const g in pcBase) {
+      const target = Math.max(3, Math.round(pcBase[g] * busy));
+      if (pcNow[g] === undefined) pcNow[g] = target;
+      pcNow[g] += Math.round((target - pcNow[g]) * 0.25) + (Math.random() < 0.5 ? -1 : 1) * (Math.random() < 0.35 ? 1 : 0);
+      pcNow[g] = Math.max(2, pcNow[g]);
+      const el = $(PC_IDS[g]);
+      if (el) el.textContent = pcNow[g];
+      total += pcNow[g];
+    }
+    const tot = $('mgOnline');
+    if (tot) tot.textContent = total;
+  }
+  pcTick();
+  setInterval(pcTick, 5000);
+
+  const arcCv = $('arcCanvas'), arcCtx = arcCv.getContext('2d');
+  let arcGame = null, arcRAF = 0, arcCur = '', arcGen = 0;
+  let ACW = 0, ACH = 0;
+  const A_GOLD = '#ffc933', A_RED = '#ff3b5c', A_CYAN = '#00e5ff', A_VIOLET = '#8b6cff', A_GREEN = '#37e6a0';
+
+  function arcResize() { ACW = arcCv.width = arcCv.clientWidth; ACH = arcCv.height = arcCv.clientHeight; }
+
+  function arcLoop(ts) {
+    if (!arcGame) return;
+    if (!ACW || !ACH) arcResize();
+    if (!arcGame.t) arcGame.t = ts;
+    const k = Math.min(2.5, (ts - arcGame.t) / 16.7);
+    arcGame.t = ts;
+    try {
+      arcGame.up(k);
+      if (arcGame) arcGame.dr(arcCtx);
+    } catch (err) {
+      console.error('arcade frame error:', err);
+      const sc = parseInt($('arcScore').textContent, 10) || 0;
+      arcGame = null;
+      arcEnd(sc, arcCur);
+      return;
+    }
+    arcRAF = requestAnimationFrame(arcLoop);
+  }
+
+  function arcSetScore(s) { $('arcScore').textContent = s; }
+
+  function arcBg(c) {
+    c.fillStyle = '#08051a';
+    c.fillRect(0, 0, ACW, ACH);
+    c.fillStyle = 'rgba(215,208,240,.45)';
+    for (let i = 0; i < 26; i++) c.fillRect((i * 97) % ACW, (i * 173) % ACH, 2, 2);
+  }
+  function arcAtom(c, x, y, r, col) {
+    c.beginPath(); c.arc(x, y, r, 0, 7); c.fillStyle = col; c.fill();
+    c.strokeStyle = 'rgba(0,0,0,.35)'; c.lineWidth = 2;
+    c.beginPath(); c.ellipse(x, y, r * .8, r * .32, .6, 0, 7); c.stroke();
+    c.beginPath(); c.arc(x, y, r * .22, 0, 7); c.fillStyle = 'rgba(0,0,0,.4)'; c.fill();
+  }
+  function arcText(c, txt, y, size) {
+    c.fillStyle = '#cfc6f2';
+    c.font = '800 ' + (size || 19) + 'px Poppins, sans-serif';
+    c.textAlign = 'center';
+    c.fillText(txt, ACW / 2, y);
+    c.textAlign = 'left';
+  }
+  function deadTint(c) { c.fillStyle = 'rgba(255,59,92,.22)'; c.fillRect(0, 0, ACW, ACH); }
+
+  function arcDie(score, g) {
+    if (!arcGame || arcGame.dead) return;
+    arcGame.dead = true;
+    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+    const gen = arcGen; // only end THIS game — never a newer one
+    setTimeout(() => { if (gen === arcGen) arcEnd(score, g); }, 520);
+  }
+
+  let arcPend = 0;
+  function arcEnd(score, g) {
+    arcGen++;
+    cancelAnimationFrame(arcRAF);
+    arcGame = null;
+    const a = arcState();
+    const base = Math.floor(score / ARC_DIV[g]);
+    let reward = Math.max(0, Math.min(20, base));
+    reward = Math.min(reward, Math.max(0, ARC_CAP - (a.earned || 0)));
+    arcPend = reward;
+    if (!a.best[g] || score > a.best[g]) a.best[g] = score;
+    dirty = true;
+    $('arcPS').innerHTML = '<b>' + score + '</b><br>🏅 ' + (a.best[g] || 0);
+    $('arcPR').textContent = reward > 0 ? '+' + reward + ' NRX' : ((a.earned || 0) >= ARC_CAP ? t('mgCap') : '');
+    const extra = Math.min(reward, Math.max(0, ARC_CAP - (a.earned || 0) - reward));
+    $('arcX2').style.display = reward > 0 && extra > 0 ? 'block' : 'none';
+    $('arcX2').textContent = '📺 x2 → +' + (reward + extra) + ' NRX';
+    $('arcDim').style.display = '';
+    $('arcPanel').style.display = '';
+    $('arcDim').classList.add('show');
+    $('arcPanel').classList.add('show');
+  }
+  function arcCollect(mult) {
+    if (arcPend <= 0) { arcPend = 0; return; }
+    const a = arcState();
+    let total = arcPend;
+    if (mult === 2) total += Math.min(arcPend, Math.max(0, ARC_CAP - (a.earned || 0) - arcPend));
+    a.earned = (a.earned || 0) + total;
+    state.balance = Math.round((state.balance + total) * 10) / 10;
+    state.totalEarned = Math.round((state.totalEarned + total) * 10) / 10;
+    arcPend = 0;
+    coinRain();
+    toast('+' + total + ' NRX 🎉');
+    dirty = true; saveToServer(true); render();
+    $('arcPR').textContent = '+' + total + ' NRX ✅';
+    $('arcX2').style.display = 'none';
+  }
+
+  const makeGame = {
+
+    // ================= SNAKE (the classic) =================
+    s() {
+      const cell = Math.max(16, Math.floor(ACW / 17));
+      const cols = Math.floor((ACW - 16) / cell);
+      const rows = Math.floor((ACH - 170) / cell);
+      const x0 = Math.floor((ACW - cols * cell) / 2);
+      const y0 = 110;
+      let snake = [{ x: (cols >> 1) + 1, y: rows >> 1 }, { x: cols >> 1, y: rows >> 1 }, { x: (cols >> 1) - 1, y: rows >> 1 }];
+      let dir = { x: 1, y: 0 };
+      const dirQ = [];
+      let food = null, score = 0, run = false, acc = 0, tick = 175;
+      let drag = null;
+      const placeFood = () => {
+        let f;
+        do { f = { x: (Math.random() * cols) | 0, y: (Math.random() * rows) | 0 }; }
+        while (snake.some(s => s.x === f.x && s.y === f.y));
+        food = f;
+      };
+      placeFood();
+      const queueDir = (d) => {
+        const last = dirQ.length ? dirQ[dirQ.length - 1] : dir;
+        if (d.x === -last.x && d.y === -last.y) return; // no reversing
+        if (d.x === last.x && d.y === last.y) return;
+        if (dirQ.length < 2) dirQ.push(d);
+      };
+      return {
+        dpad(code) {
+          if (this.dead) return;
+          run = true;
+          const map = { u: { x: 0, y: -1 }, d: { x: 0, y: 1 }, l: { x: -1, y: 0 }, r: { x: 1, y: 0 } };
+          queueDir(map[code]);
+          if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        },
+        pd(x, y) { if (!run) run = true; drag = { x: x, y: y }; },
+        pm(x, y) {
+          if (!drag) return;
+          const dx = x - drag.x, dy = y - drag.y;
+          if (Math.abs(dx) < 26 && Math.abs(dy) < 26) return;
+          queueDir(Math.abs(dx) > Math.abs(dy) ? { x: Math.sign(dx), y: 0 } : { x: 0, y: Math.sign(dy) });
+          drag = { x: x, y: y }; // swipes still work too
+        },
+        pu() { drag = null; },
+        up(k) {
+          if (!run || this.dead) return;
+          acc += k * 16.7;
+          while (acc >= tick) {
+            acc -= tick;
+            if (dirQ.length) dir = dirQ.shift();
+            const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+            if (head.x < 0 || head.y < 0 || head.x >= cols || head.y >= rows ||
+                snake.some(s => s.x === head.x && s.y === head.y)) { arcDie(score, 's'); return; }
+            snake.unshift(head);
+            if (head.x === food.x && head.y === food.y) {
+              score++; arcSetScore(score);
+              tick = Math.max(78, tick - 4);
+              placeFood();
+              if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            } else snake.pop();
+          }
+        },
+        dr(c) {
+          arcBg(c);
+          // playfield frame
+          c.strokeStyle = 'rgba(139,108,255,.45)'; c.lineWidth = 2;
+          c.strokeRect(x0 - 3, y0 - 3, cols * cell + 6, rows * cell + 6);
+          // food
+          arcAtom(c, x0 + food.x * cell + cell / 2, y0 + food.y * cell + cell / 2, cell * .38, A_GOLD);
+          // snake
+          for (let i = snake.length - 1; i >= 0; i--) {
+            const s = snake[i];
+            const sh = i === 0 ? 14 : 0;
+            c.shadowColor = A_GREEN; c.shadowBlur = sh;
+            c.fillStyle = i === 0 ? '#5cf7b6' : A_GREEN;
+            c.beginPath();
+            c.roundRect(x0 + s.x * cell + 1.5, y0 + s.y * cell + 1.5, cell - 3, cell - 3, 5);
+            c.fill();
+            c.shadowBlur = 0;
+          }
+          // eyes on head
+          const hd = snake[0];
+          c.fillStyle = '#083b26';
+          c.beginPath(); c.arc(x0 + hd.x * cell + cell / 2 + dir.x * 3 - dir.y * 4, y0 + hd.y * cell + cell / 2 + dir.y * 3 - dir.x * 4, 2.2, 0, 7); c.fill();
+          c.beginPath(); c.arc(x0 + hd.x * cell + cell / 2 + dir.x * 3 + dir.y * 4, y0 + hd.y * cell + cell / 2 + dir.y * 3 + dir.x * 4, 2.2, 0, 7); c.fill();
+          if (!run) arcText(c, '👇 USE THE ARROWS', ACH / 2 - 40);
+          if (this.dead) deadTint(c);
+        }
+      };
+    },
+
+    // ================= FLAPPY ATOM =================
+    f() {
+      let by = ACH * 0.45, vy = 0, run = false;
+      let pipes = [], sp = 0, score = 0, speed = 3.1;
+      const bx = ACW * 0.3, R = 15;
+      const gapFor = () => Math.max(148, 195 - score * 2);
+      return {
+        pd() {
+          if (this.dead) return;
+          if (!run) { run = true; }
+          vy = -8.3;
+          if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        },
+        up(k) {
+          if (!run || this.dead) return;
+          vy += 0.46 * k;
+          by += vy * k;
+          speed += 0.0012 * k;
+          sp += k * 16.7;
+          const every = Math.max(1150, 1550 - score * 12);
+          if (sp > every) {
+            sp = 0;
+            const gap = gapFor();
+            const cy = 130 + Math.random() * (ACH - 320);
+            pipes.push({ x: ACW + 40, top: cy - gap / 2, bot: cy + gap / 2, done: false });
+          }
+          for (const pp of pipes) {
+            pp.x -= speed * k;
+            if (!pp.done && pp.x + 28 < bx) { pp.done = true; score++; arcSetScore(score); }
+            if (bx + R > pp.x - 26 && bx - R < pp.x + 26 &&
+                (by - R < pp.top || by + R > pp.bot)) { arcDie(score, 'f'); return; }
+          }
+          pipes = pipes.filter(pp => pp.x > -60);
+          if (by + R > ACH - 6 || by - R < 60) arcDie(score, 'f');
+        },
+        dr(c) {
+          arcBg(c);
+          for (const pp of pipes) {
+            c.fillStyle = '#2c2159';
+            c.strokeStyle = A_VIOLET; c.lineWidth = 3;
+            c.beginPath(); c.roundRect(pp.x - 26, 56, 52, pp.top - 56, 8); c.fill(); c.stroke();
+            c.beginPath(); c.roundRect(pp.x - 26, pp.bot, 52, ACH - pp.bot, 8); c.fill(); c.stroke();
+            c.fillStyle = A_GOLD;
+            c.fillRect(pp.x - 26, pp.top - 5, 52, 5);
+            c.fillRect(pp.x - 26, pp.bot, 52, 5);
+          }
+          c.save();
+          c.translate(bx, by);
+          c.rotate(Math.max(-0.5, Math.min(0.9, vy * 0.07)));
+          arcAtom(c, 0, 0, R, A_GOLD);
+          c.restore();
+          c.fillStyle = 'rgba(139,108,255,.4)';
+          c.fillRect(0, ACH - 6, ACW, 6);
+          if (!run) arcText(c, '👆 TAP TO FLY', ACH / 2);
+          if (this.dead) deadTint(c);
+        }
+      };
+    },
+
+    // ================= ASTRO BREAKER =================
+    b() {
+      let px = ACW / 2;
+      const PW = 96, PH = 16, PY = ACH - 70, BR = 9;
+      let ball = { x: ACW / 2, y: PY - 20, vx: 0, vy: 0, stuck: true };
+      let bricks = [], score = 0, level = 1, speed = 6.2;
+      const colors = [A_GOLD, '#ff2d95', A_CYAN, A_VIOLET, A_GREEN, '#ff9f1c', '#5cf7b6'];
+      const buildBricks = () => {
+        bricks = [];
+        const rows2 = Math.min(7, 4 + level), cols2 = 7;
+        const bw = (ACW - 24 - (cols2 - 1) * 6) / cols2, bh = 20;
+        for (let r = 0; r < rows2; r++)
+          for (let q = 0; q < cols2; q++)
+            bricks.push({ x: 12 + q * (bw + 6), y: 104 + r * (bh + 7), w: bw, h: bh, col: colors[r % colors.length] });
+      };
+      buildBricks();
+      const launch = () => {
+        if (!ball.stuck) return;
+        ball.stuck = false;
+        const a = -Math.PI / 2 + (Math.random() * 0.7 - 0.35);
+        ball.vx = Math.cos(a) * speed; ball.vy = Math.sin(a) * speed;
+      };
+      return {
+        pd(x) { px = x; launch(); },
+        pm(x) { px = Math.max(PW / 2, Math.min(ACW - PW / 2, x)); },
+        up(k) {
+          if (this.dead) return;
+          if (ball.stuck) { ball.x = px; ball.y = PY - 20; return; }
+          ball.x += ball.vx * k;
+          ball.y += ball.vy * k;
+          if (ball.x < BR) { ball.x = BR; ball.vx = Math.abs(ball.vx); }
+          if (ball.x > ACW - BR) { ball.x = ACW - BR; ball.vx = -Math.abs(ball.vx); }
+          if (ball.y < 64 + BR) { ball.y = 64 + BR; ball.vy = Math.abs(ball.vy); }
+          // paddle
+          if (ball.vy > 0 && ball.y + BR >= PY && ball.y + BR <= PY + PH + 8 && Math.abs(ball.x - px) <= PW / 2 + BR) {
+            const off = Math.max(-1, Math.min(1, (ball.x - px) / (PW / 2)));
+            const ang = -Math.PI / 2 + off * 1.05;
+            ball.vx = Math.cos(ang) * speed;
+            ball.vy = Math.sin(ang) * speed;
+            ball.y = PY - BR - 1;
+          }
+          // bricks
+          for (let bi = 0; bi < bricks.length; bi++) {
+            const b = bricks[bi];
+            if (ball.x + BR < b.x || ball.x - BR > b.x + b.w || ball.y + BR < b.y || ball.y - BR > b.y + b.h) continue;
+            const oL = ball.x + BR - b.x, oR = b.x + b.w - (ball.x - BR);
+            const oT = ball.y + BR - b.y, oB = b.y + b.h - (ball.y - BR);
+            const m = Math.min(oL, oR, oT, oB);
+            if (m === oT) ball.vy = -Math.abs(ball.vy);
+            else if (m === oB) ball.vy = Math.abs(ball.vy);
+            else if (m === oL) ball.vx = -Math.abs(ball.vx);
+            else ball.vx = Math.abs(ball.vx);
+            bricks.splice(bi, 1);
+            score++; arcSetScore(score);
+            if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            break;
+          }
+          if (!bricks.length) { level++; speed += 0.7; ball.stuck = true; buildBricks(); }
+          if (ball.y > ACH + 30) arcDie(score, 'b');
+        },
+        dr(c) {
+          arcBg(c);
+          for (const b of bricks) {
+            c.fillStyle = b.col;
+            c.beginPath(); c.roundRect(b.x, b.y, b.w, b.h, 5); c.fill();
+            c.fillStyle = 'rgba(255,255,255,.22)';
+            c.beginPath(); c.roundRect(b.x, b.y, b.w, 6, 5); c.fill();
+          }
+          c.shadowColor = A_GOLD; c.shadowBlur = 14;
+          c.fillStyle = A_GOLD;
+          c.beginPath(); c.roundRect(px - PW / 2, PY, PW, PH, 8); c.fill();
+          c.shadowBlur = 0;
+          c.shadowColor = '#fff'; c.shadowBlur = 10;
+          c.fillStyle = '#fff';
+          c.beginPath(); c.arc(ball.x, ball.y, BR, 0, 7); c.fill();
+          c.shadowBlur = 0;
+          if (ball.stuck && !this.dead) {
+            const a = 0.55 + 0.45 * Math.sin(Date.now() / 250);
+            c.fillStyle = 'rgba(255,201,51,' + a.toFixed(2) + ')';
+            c.font = "900 22px Poppins, sans-serif"; c.textAlign = 'center';
+            c.fillText('👆 TAP TO LAUNCH', ACW / 2, ACH / 2 - 12);
+            c.fillStyle = '#cfc6f2'; c.font = "700 14px Poppins, sans-serif";
+            c.fillText('Level ' + level, ACW / 2, ACH / 2 + 14);
+            c.textAlign = 'left';
+          }
+          if (this.dead) deadTint(c);
+        }
+      };
+    },
+
+    // ================= ATOM CATCHER =================
+    c() {
+      let px = ACW / 2, items = [], sp = 0, spInt = 50, spd = 2.7, score = 0, run = false;
+      return {
+        pd(x) { if (!run) run = true; px = Math.max(46, Math.min(ACW - 46, x)); },
+        pm(x) { px = Math.max(46, Math.min(ACW - 46, x)); },
+        up(k) {
+          if (!run || this.dead) return;
+          spd += 0.0032 * k;
+          if (spInt > 19) spInt -= 0.007 * k;
+          sp += k;
+          if (sp > spInt) {
+            sp = 0;
+            items.push({ x: 26 + Math.random() * (ACW - 52), y: -20, bad: Math.random() < 0.24, w: (Math.random() - 0.5) * 1.2 });
+          }
+          for (const it of items) {
+            it.y += spd * k * (it.bad ? 1.1 : 1);
+            it.x += it.w * k;
+            if (it.y > ACH - 74 && it.y < ACH - 30 && Math.abs(it.x - px) < 50) {
+              if (it.bad) { arcDie(score, 'c'); return; }
+              it.hit = true; score++; arcSetScore(score);
+            }
+          }
+          items = items.filter(i => !i.hit && i.y < ACH + 30);
+        },
+        dr(c) {
+          arcBg(c);
+          for (const it of items) {
+            arcAtom(c, it.x, it.y, 13, it.bad ? A_RED : A_GOLD);
+            if (it.bad) {
+              c.strokeStyle = '#fff'; c.lineWidth = 2.5;
+              c.beginPath();
+              c.moveTo(it.x - 5, it.y - 5); c.lineTo(it.x + 5, it.y + 5);
+              c.moveTo(it.x + 5, it.y - 5); c.lineTo(it.x - 5, it.y + 5);
+              c.stroke();
+            }
+          }
+          c.shadowColor = A_GOLD; c.shadowBlur = 18;
+          c.fillStyle = A_GOLD;
+          c.beginPath(); c.roundRect(px - 46, ACH - 58, 92, 18, 9); c.fill();
+          c.shadowBlur = 0;
+          c.fillStyle = '#7a5400';
+          c.beginPath(); c.arc(px, ACH - 49, 6, 0, 7); c.fill();
+          if (!run) arcText(c, '👆 DRAG TO CATCH', ACH / 2);
+          if (this.dead) deadTint(c);
+        }
+      };
+    }
+  };
+
+  function arcStart(g) {
+    const a = arcState();
+    const launch = () => {
+      arcGen++;
+      a.plays = (a.plays || 0) + 1;
+      dirty = true;
+      arcCur = g;
+      $('arcOverlay').classList.add('show');
+      $('arcPanel').classList.remove('show');
+      $('arcDim').classList.remove('show');
+      $('arcDim').style.display = 'none';   // belt & braces: never leave a dark curtain
+      $('arcPanel').style.display = 'none';
+      arcResize();
+      arcGame = makeGame[g]();
+      $('dpad').classList.toggle('show', g === 's');
+      arcSetScore(0);
+      cancelAnimationFrame(arcRAF);
+      arcRAF = requestAnimationFrame(arcLoop);
+      arcRefresh();
+    };
+    launch(); // arcade is free to play — ads only for the x2 bonus
+  }
+  function arcQuit() {
+    arcGen++;
+    cancelAnimationFrame(arcRAF);
+    arcGame = null;
+    $('arcOverlay').classList.remove('show');
+    $('arcDim').classList.remove('show');
+    $('dpad').classList.remove('show');
+    arcRefresh(); render();
+  }
+  document.querySelectorAll('.arc-card').forEach(card =>
+    card.addEventListener('click', () => arcStart(card.dataset.g)));
+  $('arcX2').addEventListener('click', () => {
+    const btn = $('arcX2');
+    if (btn.disabled) return;
+    btn.disabled = true;
+    const orig = btn.textContent;
+    btn.textContent = '📺 ...';
+    const restore = () => { btn.disabled = false; btn.textContent = orig; };
+    showAd(
+      () => { restore(); arcCollect(2); },              // ad watched → double
+      () => { restore(); toast(t('tAdSkip')); }         // no ad / skipped → keep the button alive
+    );
+  });
+  $('arcClose').addEventListener('click', () => { arcCollect(1); arcQuit(); });
+  $('arcExit').addEventListener('click', () => { arcCollect(1); arcQuit(); });
+  $('arcAgain').addEventListener('click', () => { arcCollect(1); $('arcPanel').classList.remove('show'); arcStart(arcCur); });
+  document.querySelectorAll('.dp').forEach(b => b.addEventListener('click', e => {
+    e.stopPropagation();
+    if (arcGame && arcGame.dpad) arcGame.dpad(b.dataset.d);
+  }));
+  arcCv.addEventListener('pointerdown', e => { e.preventDefault(); if (e.isPrimary && arcGame && arcGame.pd) arcGame.pd(e.clientX, e.clientY); });
+  arcCv.addEventListener('pointermove', e => { if (e.isPrimary && arcGame && arcGame.pm) arcGame.pm(e.clientX, e.clientY); });
+  arcCv.addEventListener('pointerup', e => { if (e.isPrimary && arcGame && arcGame.pu) arcGame.pu(e.clientX, e.clientY); });
+  arcCv.addEventListener('pointercancel', e => { if (arcGame && arcGame.pu) arcGame.pu(e.clientX, e.clientY); });
 
   // ---------- Flying fire coin (every 40s -> tap -> watch ad -> 10..50 NRX) ----------
   const FIRE_MS = 40 * 1000;
